@@ -102,21 +102,37 @@ function answerInlineQuery($inlineQueryId, $results) {
   //Might use http_build_query in the future
 }
 
-function getAllPolls($userId) {
+function getAllPolls($userId, $search = '') {
   global $dbConnection, $config;
-
-  try {
-    //$sql = "SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = $userId GROUP BY attendees.poll_id";
-    //$stmt = $dbConnection->prepare('SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = :userId GROUP BY attendees.poll_id');
-    $sql = "SELECT id, title, text FROM polls WHERE user_id = $userId AND status = 1";
-    $stmt = $dbConnection->prepare('SELECT id, title, text FROM polls WHERE user_id = :userId AND status = 1');
-    $stmt->bindParam(':userId', $userId);
-    $stmt->execute();
-    return $stmt->fetchAll();
-  } catch (PDOException $e) {
-    notifyOnException('Database Select', $config, $sql, $e);
+  if (empty($search)) {
+    try {
+      //$sql = "SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = $userId GROUP BY attendees.poll_id";
+      //$stmt = $dbConnection->prepare('SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = :userId GROUP BY attendees.poll_id');
+      $sql = "SELECT id, title, text FROM polls WHERE user_id = $userId AND status = 1";
+      $stmt = $dbConnection->prepare('SELECT id, title, text FROM polls WHERE user_id = :userId AND status = 1');
+      $stmt->bindParam(':userId', $userId);
+      $stmt->execute();
+      return $stmt->fetchAll();
+    } catch (PDOException $e) {
+      notifyOnException('Database Select', $config, $sql, $e);
+    }
+    return false;
+  } else {
+    $search = '%'.$search.'%';
+    try {
+      //$sql = "SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = $userId GROUP BY attendees.poll_id";
+      //$stmt = $dbConnection->prepare('SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = :userId GROUP BY attendees.poll_id');
+      $sql = "SELECT id, title, text FROM polls WHERE user_id = $userId AND status = 1 AND title LIKE '$search'";
+      $stmt = $dbConnection->prepare('SELECT id, title, text FROM polls WHERE user_id = :userId AND status = 1 AND title LIKE :search');
+      $stmt->bindParam(':userId', $userId);
+      $stmt->bindParam(':search', $search);
+      $stmt->execute();
+      return $stmt->fetchAll();
+    } catch (PDOException $e) {
+      notifyOnException('Database Select', $config, $sql, $e);
+    }
+    return false;
   }
-  return false;
 }
 
 function getPollAttendees($pollId){
@@ -142,7 +158,7 @@ function buildPollAttendees($pollId, $yes, $maybe, $no){
   global $dbConnection, $config;
   $return = "
 
-<b>Anmeldungen - $yes</b>
+<b>Anmeldung - [$yes]</b>
 ";
 
   try {
@@ -159,7 +175,7 @@ function buildPollAttendees($pollId, $yes, $maybe, $no){
     }
 
     $return .= "
-<b>Vielleicht - $maybe</b>
+<b>Vielleicht - [$maybe]</b>
 ";
 
     $sql = "SELECT nickname FROM attendees WHERE poll_id = $pollId AND status = 2";
@@ -173,7 +189,7 @@ function buildPollAttendees($pollId, $yes, $maybe, $no){
     }
 
     $return .= "
-<b>Absage - $no</b>
+<b>Abmeldung - [$no]</b>
 ";
 
     $sql = "SELECT nickname FROM attendees WHERE poll_id = $pollId AND status = 3";

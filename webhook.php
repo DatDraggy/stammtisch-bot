@@ -10,10 +10,11 @@ $dbConnection = buildDatabaseConnection($config);
 if (isset($data['inline_query'])) {
   $inlineQueryId = $data['inline_query']['id'];
   $senderUserId = $data['inline_query']['from']['id'];
+  $search = $data['inline_query']['query'];
 
   $results = array();
   //Return all polls from $senderUserId
-  $polls = getAllPolls($senderUserId);
+  $polls = getAllPolls($senderUserId, $search);
   foreach ($polls as $poll) {
     $pollId = $poll['id'];
     $pollTitle = $poll['title'];
