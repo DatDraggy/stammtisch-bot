@@ -61,8 +61,8 @@ function createPoll($userId, $userMessageId, $feedbackMessageId, $title) {
   global $dbConnection, $config;
 
   try {
-    $sql = "INSERT INTO polls(user_id, user_message_id, feedback_message_id, text) VALUES ('$userId', '$userMessageId', '$feedbackMessageId', $title)";
-    $stmt = $dbConnection->prepare('INSERT INTO polls(user_id, user_message_id, feedback_message_id, text) VALUES (:userId, :userMessageId, :feedbackMessageId, :title)');
+    $sql = "INSERT INTO polls(user_id, user_message_id, feedback_message_id, title) VALUES ('$userId', '$userMessageId', '$feedbackMessageId', $title)";
+    $stmt = $dbConnection->prepare('INSERT INTO polls(user_id, user_message_id, feedback_message_id, title) VALUES (:userId, :userMessageId, :feedbackMessageId, :title)');
     $stmt->bindParam(':userId', $userId);
     $stmt->bindParam(':userMessageId', $userMessageId);
     $stmt->bindParam(':feedbackMessageId', $feedbackMessageId);
@@ -96,6 +96,7 @@ function getPoll($userId, $feedbackMessageId) {
 
 function answerInlineQuery($inlineQueryId, $results) {
   global $config;
+
   mail($config['mail'], 'Test', $config['url'] . "answerInlineQuery?inline_query_id=$inlineQueryId&results=$results&is_personal=true");
   $response = file_get_contents($config['url'] . "answerInlineQuery?inline_query_id=$inlineQueryId&results=$results&is_personal=true");
   //Might use http_build_query in the future

@@ -51,6 +51,7 @@ if (isset($data['inline_query'])) {
         'Teilnehmer'
     );
   }
+  mail($config['mail'], 'Tets', json_encode($results));
   answerInlineQuery($inlineQueryId, json_encode($results));
   die();
 }
@@ -83,6 +84,7 @@ if (isset($text) && !isset($repliedToMessageId)) {
     $feedbackMessageId = sendMessage($chatId, "Ich erstelle die Umfrage <i>$text</i>.
 Sende mir nun den Inhalt/die Beschreibung der Umfrage.", '', json_encode($forceReply))['message_id'];
     createPoll($senderUserId, $messageId, $feedbackMessageId, $text);
+    die();
   }
 
   $command = strtolower($command);
