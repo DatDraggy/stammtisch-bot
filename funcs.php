@@ -116,7 +116,7 @@ function getAllPolls($userId, $search = '') {
     }
     return false;
   } else {
-    $search = '%'.$search.'%';
+    $search = '%' . $search . '%';
     try {
       //$sql = "SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = $userId GROUP BY attendees.poll_id";
       //$stmt = $dbConnection->prepare('SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = :userId GROUP BY attendees.poll_id');
@@ -133,7 +133,7 @@ function getAllPolls($userId, $search = '') {
   }
 }
 
-function getPollAttendees($pollId){
+function getPollAttendees($pollId) {
   global $dbConnection, $config;
 
   try {
@@ -152,7 +152,7 @@ function getPollAttendees($pollId){
   return false;
 }
 
-function buildPollAttendees($pollId, $yes, $maybe, $no){
+function buildPollAttendees($pollId, $yes, $maybe, $no) {
   global $dbConnection, $config;
   $return = "
 
@@ -167,7 +167,7 @@ function buildPollAttendees($pollId, $yes, $maybe, $no){
     $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
     $rows = $stmt->fetchAll();
-    foreach ($rows as $row){
+    foreach ($rows as $row) {
       $return .= $row['nickname'] . '
 ';
     }
@@ -181,7 +181,7 @@ function buildPollAttendees($pollId, $yes, $maybe, $no){
     $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
     $rows = $stmt->fetchAll();
-    foreach ($rows as $row){
+    foreach ($rows as $row) {
       $return .= $row['nickname'] . '
 ';
     }
@@ -195,7 +195,7 @@ function buildPollAttendees($pollId, $yes, $maybe, $no){
     $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
     $rows = $stmt->fetchAll();
-    foreach ($rows as $row){
+    foreach ($rows as $row) {
       $return .= $row['nickname'] . '
 ';
     }
@@ -206,7 +206,7 @@ function buildPollAttendees($pollId, $yes, $maybe, $no){
   return false;
 }
 
-function setPollContent($userId, $feedbackMessageId, $text){
+function setPollContent($userId, $feedbackMessageId, $text) {
   global $dbConnection, $config;
 
   try {
@@ -215,6 +215,22 @@ function setPollContent($userId, $feedbackMessageId, $text){
     $stmt->bindParam(':text', $text);
     $stmt->bindParam(':userId', $userId);
     $stmt->bindParam(':feedbackMessageId', $feedbackMessageId);
+    $stmt->execute();
+    return true;
+  } catch (PDOException $e) {
+    notifyOnException('Database Select', $config, $sql, $e);
+  }
+  return false;
+}
+
+function newPollPost($inlineQueryMessageId, $pollId){
+  global $dbConnection, $config;
+
+  try {
+    $sql = "INSERT INTO messages(inline_message_id, poll_id) VALUES ('$inlineQueryMessageId', '$pollId')";
+    $stmt = $dbConnection->prepare('INSERT INTO messages(inline_message_id, poll_id) VALUES (:inlineQueryMessageId, :pollId)');
+    $stmt->bindParam(':inlineQueryMessageId', $inlineQueryMessageId);
+    $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
     return true;
   } catch (PDOException $e) {
