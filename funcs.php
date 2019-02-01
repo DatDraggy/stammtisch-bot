@@ -126,10 +126,10 @@ function getPollAttendees($pollId){
     //$sql = "SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = $userId GROUP BY attendees.poll_id";
     //$stmt = $dbConnection->prepare('SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = :userId GROUP BY attendees.poll_id');
     $sql = "SELECT (SELECT count(user_id) FROM attendees WHERE poll_id = $pollId AND status = 1) as yes, (SELECT count(user_id) FROM attendees WHERE poll_id = $pollId AND status = 2) as maybe, (SELECT count(user_id) FROM attendees WHERE poll_id = $pollId AND status = 3) as no";
-    $stmt = $dbConnection->prepare('SELECT (SELECT count(user_id) FROM attendees WHERE poll_id = :pollId AND status = 1) as yes, (SELECT count(user_id) FROM attendees WHERE poll_id = :pollId AND status = 2) as maybe, (SELECT count(user_id) FROM attendees WHERE poll_id = :pollId AND status = 3) as no');
+    $stmt = $dbConnection->prepare('SELECT (SELECT count(user_id) FROM attendees WHERE poll_id = :pollId AND status = 1) as yes, (SELECT count(user_id) FROM attendees WHERE poll_id = :pollId2 AND status = 2) as maybe, (SELECT count(user_id) FROM attendees WHERE poll_id = :pollId3 AND status = 3) as no');
     $stmt->bindParam(':pollId', $pollId);
-    $stmt->bindParam(':pollId', $pollId);
-    $stmt->bindParam(':pollId', $pollId);
+    $stmt->bindParam(':pollId2', $pollId);
+    $stmt->bindParam(':pollId3', $pollId);
     $stmt->execute();
     return $stmt->fetch();
   } catch (PDOException $e) {
