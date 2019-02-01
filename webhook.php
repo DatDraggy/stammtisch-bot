@@ -52,6 +52,7 @@ if (isset($data['inline_query'])) {
     );
   }
   answerInlineQuery($inlineQueryId, json_encode($results));
+  die();
 }
 
 $chatId = $data['message']['chat']['id'];
