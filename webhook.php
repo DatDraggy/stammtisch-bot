@@ -5,6 +5,7 @@ $response = file_get_contents('php://input');
 $data = json_decode($response, true);
 $dump = print_r($data, true);
 
+$dbConnection = buildDatabaseConnection($config);
 
 if (isset($data['inline_query'])) {
   $inlineQueryId = $data['inline_query']['id'];
@@ -74,7 +75,6 @@ if (isset($text) && !isset($repliedToMessageId)) {
       $command = '/' . $messageArr[1];
     }
   } else {
-    $dbConnection = buildDatabaseConnection($config);
     sendChatAction($chatId, 'typing');
     $forceReply = array(
       'force_reply' => true
@@ -88,9 +88,9 @@ Sende mir nun den Inhalt/die Beschreibung der Umfrage.", '', json_encode($forceR
 
   switch ($command) {
     case '/start':
-      sendMessage($chatId, '<b>Hi</b>
+      sendMessage($chatId, 'Hallo!
 Ich bin der Stammtisch Bot. Durch mich kannst du Registrationen für Meetups oder Stammtische erstellen.
-Schreibe mir einfach den Titel deiner Registration, dann können wir los legen.');
+Um anzufangen, sende mir einfach den Titel deiner Registration, dann können wir los legen.');
       break;
   }
 } else if (isset($text) && isset($repliedToMessageId)) {
@@ -103,7 +103,3 @@ Schreibe mir einfach den Titel deiner Registration, dann können wir los legen.'
   setPollContent($senderUserId, $repliedToMessageId, $text);
   sendMessage($chatId, 'Fertig. Du kannst die Umfrage nun mit <code>@stammtischanmeldung_bot $title</code> in Gruppen teilen.');
 }
-
-die();
-//Has to be here, otherwise IDE is being mad about dbConnection not existing globally mimimi
-$dbConnection = buildDatabaseConnection($config);

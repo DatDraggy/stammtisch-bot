@@ -106,8 +106,8 @@ function getAllPolls($userId) {
   try {
     //$sql = "SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = $userId GROUP BY attendees.poll_id";
     //$stmt = $dbConnection->prepare('SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = :userId GROUP BY attendees.poll_id');
-    $sql = "SELECT id, title, text FROM polls WHERE user_id = $userId";
-    $stmt = $dbConnection->prepare('SELECT id, title, text FROM polls WHERE user_id = :userId');
+    $sql = "SELECT id, title, text FROM polls WHERE user_id = $userId AND status = 1";
+    $stmt = $dbConnection->prepare('SELECT id, title, text FROM polls WHERE user_id = :userId AND status = 1');
     $stmt->bindParam(':userId', $userId);
     $stmt->execute();
     return $stmt->fetchAll();
