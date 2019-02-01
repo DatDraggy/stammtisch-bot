@@ -50,7 +50,7 @@ if (isset($data['inline_query'])) {
         'parse_mode' => 'html',
         'disable_web_page_preview' => true
       ),
-      'reply_markup' => json_encode($replyMarkup),
+      'reply_markup' => $replyMarkup,
       'description' => /*$attendeesYes+$attendeesMaybe+$attendeesNo . ' ' .*/
         'Teilnehmer'
     );
