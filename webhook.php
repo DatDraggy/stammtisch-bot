@@ -10,9 +10,7 @@ mail($config['mail'], 'Test', $dump);
 if (isset($data['callback_query'])) {
   $queryId = $data['callback_query']['id'];
   answerCallbackQuery($queryId, 'Gespeichert.');
-} else {
-}
-if (isset($data['inline_query'])) {
+} else if (isset($data['inline_query'])) {
   $inlineQueryId = $data['inline_query']['id'];
   $senderUserId = $data['inline_query']['from']['id'];
   $search = $data['inline_query']['query'];
@@ -52,7 +50,7 @@ if (isset($data['inline_query'])) {
       'id' => $pollId,
       'title' => $pollTitle,
       'input_message_content' => array(
-        'message_text' => $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo),
+        'message_text' => urlencode($pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo)),
         'parse_mode' => 'html',
         'disable_web_page_preview' => true
       ),
