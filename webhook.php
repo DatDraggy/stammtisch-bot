@@ -45,7 +45,11 @@ if (isset($data['inline_query'])) {
       'type' => 'article',
       'id' => $pollId,
       'title' => $pollTitle,
-      'input_message_content' => $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo),
+      'input_message_content' => array(
+        'message_text' => $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo),
+        'parse_mode' => 'html',
+        'disable_web_page_preview' => true
+      ),
       'reply_markup' => json_encode($replyMarkup),
       'description' => /*$attendeesYes+$attendeesMaybe+$attendeesNo . ' ' .*/
         'Teilnehmer'
