@@ -36,9 +36,20 @@ function answerCallbackQuery($queryId, $text = '') {
   return json_decode($response, true)['result'];
 }
 
-function sendChatAction($chatId, $action){
-  $actionList = array("typing", "upload_photo","record_video","upload_video","record_audio","upload_audio","upload_document","find_location","record_video_note","upload_video_note");
-  if(in_array($action, $actionList)) {
+function sendChatAction($chatId, $action) {
+  $actionList = array(
+    "typing",
+    "upload_photo",
+    "record_video",
+    "upload_video",
+    "record_audio",
+    "upload_audio",
+    "upload_document",
+    "find_location",
+    "record_video_note",
+    "upload_video_note"
+  );
+  if (in_array($action, $actionList)) {
     global $config;
     $response = file_get_contents($config['url'] . "sendChatAction?chat_id=$chatId&action=$action");
     /*$user = json_decode($response, true)['result']['user'];
@@ -46,15 +57,133 @@ function sendChatAction($chatId, $action){
   }
 }
 
-function createPoll($userId, $userMessageId, $feedbackMessageId, $text){
+function createPoll($userId, $userMessageId, $feedbackMessageId, $title) {
   global $dbConnection, $config;
 
   try {
-    $sql = '';
-    $stmt = $dbConnection->prepare('');
-    $stmt->bindParam();
-
-  }catch (PDOException $e){
+    $sql = "INSERT INTO polls(user_id, user_message_id, feedback_message_id, text) VALUES ('$userId', '$userMessageId', '$feedbackMessageId', $title)";
+    $stmt = $dbConnection->prepare('INSERT INTO polls(user_id, user_message_id, feedback_message_id, text) VALUES (:userId, :userMessageId, :feedbackMessageId, :title)');
+    $stmt->bindParam(':userId', $userId);
+    $stmt->bindParam(':userMessageId', $userMessageId);
+    $stmt->bindParam(':feedbackMessageId', $feedbackMessageId);
+    $stmt->bindParam(':title', $title);
+    $stmt->execute();
+  } catch (PDOException $e) {
     notifyOnException('Database Insert', $config, $sql, $e);
   }
+}
+
+function getPoll($userId, $feedbackMessageId) {
+  global $dbConnection, $config;
+
+  try {
+    $sql = "SELECT id, status, title FROM polls WHERE user_id = $userId AND feedback_message_id = $feedbackMessageId";
+    $stmt = $dbConnection->prepare('SELECT id, status, title FROM polls WHERE user_id = :userId AND feedback_message_id = :feedbackMessageId');
+    $stmt->bindParam(':userId', $userId);
+    $stmt->bindParam(':feedbackMessageId', $feedbackMessageId);
+    $stmt->execute();
+    if ($stmt->rowCount() > 0) {
+      return $stmt->fetch();
+    }
+  } catch (PDOException $e) {
+    notifyOnException('Database Select', $config, $sql, $e);
+  }
+  return [
+    false,
+    false
+  ];
+}
+
+function answerInlineQuery($inlineQueryId, $results) {
+  global $config;
+  $response = file_get_contents($config['url'] . "answerInlineQuery?inline_query_id=$inlineQueryId&results=$results&is_personal=true");
+  //Might use http_build_query in the future
+}
+
+function getAllPolls($userId) {
+  global $dbConnection, $config;
+
+  try {
+    //$sql = "SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = $userId GROUP BY attendees.poll_id";
+    //$stmt = $dbConnection->prepare('SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = :userId GROUP BY attendees.poll_id');
+    $sql = "SELECT id, title, text FROM polls WHERE user_id = $userId";
+    $stmt = $dbConnection->prepare('SELECT id, title, text FROM polls WHERE user_id = :userId');
+    $stmt->bindParam(':userId', $userId);
+    $stmt->execute();
+    return $stmt->fetchAll();
+  } catch (PDOException $e) {
+    notifyOnException('Database Select', $config, $sql, $e);
+  }
+  return false;
+}
+
+function getPollAttendees($pollId){
+  global $dbConnection, $config;
+
+  try {
+    //$sql = "SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = $userId GROUP BY attendees.poll_id";
+    //$stmt = $dbConnection->prepare('SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = :userId GROUP BY attendees.poll_id');
+    $sql = "SELECT (SELECT count(user_id) FROM attendees WHERE poll_id = $pollId AND status = 1) as yes, (SELECT count(user_id) FROM attendees WHERE poll_id = $pollId AND status = 2) as maybe, (SELECT count(user_id) FROM attendees WHERE poll_id = $pollId AND status = 3) as no";
+    $stmt = $dbConnection->prepare('SELECT (SELECT count(user_id) FROM attendees WHERE poll_id = :pollId AND status = 1) as yes, (SELECT count(user_id) FROM attendees WHERE poll_id = :pollId AND status = 2) as maybe, (SELECT count(user_id) FROM attendees WHERE poll_id = :pollId AND status = 3) as no');
+    $stmt->bindParam(':pollId', $pollId);
+    $stmt->bindParam(':pollId', $pollId);
+    $stmt->bindParam(':pollId', $pollId);
+    $stmt->execute();
+    return $stmt->fetch();
+  } catch (PDOException $e) {
+    notifyOnException('Database Select', $config, $sql, $e);
+  }
+  return false;
+}
+
+function buildPollAttendees($pollId, $yes, $maybe, $no){
+  global $dbConnection, $config;
+  $return = "Anmeldungen - $yes:
+";
+
+  try {
+    //$sql = "SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = $userId GROUP BY attendees.poll_id";
+    //$stmt = $dbConnection->prepare('SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = :userId GROUP BY attendees.poll_id');
+    $sql = "SELECT nickname FROM attendees WHERE poll_id = $pollId AND status = 1";
+    $stmt = $dbConnection->prepare('SELECT nickname FROM attendees WHERE poll_id = :pollId AND status = 1');
+    $stmt->bindParam(':pollId', $pollId);
+    $stmt->execute();
+    $rows = $stmt->fetchAll();
+    foreach ($rows as $row){
+      $return .= $row['nickname'] . '
+';
+    }
+
+    $return .= "
+Vielleicht - $maybe
+";
+
+    $sql = "SELECT nickname FROM attendees WHERE poll_id = $pollId AND status = 2";
+    $stmt = $dbConnection->prepare('SELECT nickname FROM attendees WHERE poll_id = :pollId AND status = 2');
+    $stmt->bindParam(':pollId', $pollId);
+    $stmt->execute();
+    $rows = $stmt->fetchAll();
+    foreach ($rows as $row){
+      $return .= $row['nickname'] . '
+';
+    }
+
+    $return .= "
+Absage - $no
+";
+
+    $sql = "SELECT nickname FROM attendees WHERE poll_id = $pollId AND status = 3";
+    $stmt = $dbConnection->prepare('SELECT nickname FROM attendees WHERE poll_id = :pollId AND status = 3');
+    $stmt->bindParam(':pollId', $pollId);
+    $stmt->execute();
+    $rows = $stmt->fetchAll();
+    foreach ($rows as $row){
+      $return .= $row['nickname'] . '
+';
+    }
+    return $return;
+  } catch (PDOException $e) {
+    notifyOnException('Database Select', $config, $sql, $e);
+  }
+  return false;
 }

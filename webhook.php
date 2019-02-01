@@ -5,6 +5,54 @@ $response = file_get_contents('php://input');
 $data = json_decode($response, true);
 $dump = print_r($data, true);
 
+
+if (isset($data['inline_query'])) {
+  $inlineQueryId = $data['inline_query']['id'];
+  $senderUserId = $data['inline_query']['from']['id'];
+
+  $results = array();
+  //Return all polls from $senderUserId
+  $polls = getAllPolls($senderUserId);
+  foreach ($polls as $poll) {
+    $pollId = $poll['id'];
+    $pollTitle = $poll['title'];
+    $pollText = $poll['text'];
+    list($attendeesYes, $attendeesMaybe, $attendeesNo) = getPollAttendees($pollId);
+    $replyMarkup = array(
+      'inline_keyboard' => array(
+        array(
+          array(
+            'text' => 'Anmeldung - ' . $attendeesYes,
+            'callback_data' => ''
+          )
+        ),
+        array(
+          array(
+            'text' => 'Vielleicht - ' . $attendeesMaybe,
+            'callback_data' => ''
+          )
+        ),
+        array(
+          array(
+            'text' => 'Abmeldung - ' . $attendeesNo,
+            'callback_data' => ''
+          )
+        )
+      )
+    );
+    $results[] = array(
+      'type' => 'article',
+      'id' => $pollId,
+      'title' => $pollTitle,
+      'input_message_content' => $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo),
+      'reply_markup' => json_encode($replyMarkup),
+      'description' => /*$attendeesYes+$attendeesMaybe+$attendeesNo . ' ' .*/
+        'Teilnehmer'
+    );
+  }
+  answerInlineQuery($inlineQueryId, $results);
+}
+
 $chatId = $data['message']['chat']['id'];
 $chatType = $data['message']['chat']['type'];
 $senderUserId = $data['message']['from']['id'];
@@ -31,7 +79,8 @@ if (isset($text) && !isset($repliedToMessageId)) {
     $forceReply = array(
       'force_reply' => true
     );
-    $feedbackMessageId = sendMessage($chatId, "Ich erstelle die Umfrage <i>$text</i>.", '', json_encode($forceReply))['message_id'];
+    $feedbackMessageId = sendMessage($chatId, "Ich erstelle die Umfrage <i>$text</i>.
+Sende mir nun den Inhalt/die Beschreibung der Umfrage.", '', json_encode($forceReply))['message_id'];
     createPoll($senderUserId, $messageId, $feedbackMessageId, $text);
   }
 
@@ -44,8 +93,17 @@ Ich bin der Stammtisch Bot. Durch mich kannst du Registrationen für Meetups ode
 Schreibe mir einfach den Titel deiner Registration, dann können wir los legen.');
       break;
   }
+} else if (isset($text) && isset($repliedToMessageId)) {
+  sendChatAction($chatId, 'typing');
+  list($pollId, $status, $title) = getPoll($senderUserId, $repliedToMessageId);
+  if ($pollId === false) {
+    sendMessage($chatId, 'Error oder nicht gefunden');
+    die();
+  }
+  setPollContent($senderUserId, $repliedToMessageId, $text);
+  sendMessage($chatId, 'Fertig. Du kannst die Umfrage nun mit <code>@stammtischanmeldung_bot $title</code> in Gruppen teilen.');
 }
 
-if (isset($text) && isset($repliedToMessageId)) {
-
-}
+die();
+//Has to be here, otherwise IDE is being mad about dbConnection not existing globally mimimi
+$dbConnection = buildDatabaseConnection($config);
