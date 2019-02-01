@@ -51,7 +51,7 @@ if (isset($data['inline_query'])) {
         'Teilnehmer'
     );
   }
-  answerInlineQuery($inlineQueryId, $results);
+  answerInlineQuery($inlineQueryId, json_encode($results));
 }
 
 $chatId = $data['message']['chat']['id'];
@@ -100,6 +100,6 @@ Um anzufangen, sende mir einfach den Titel deiner Registration, dann können wir
     sendMessage($chatId, 'Error oder nicht gefunden');
     die();
   }
-  setPollContent($senderUserId, $repliedToMessageId, $text);
+  //setPollContent($senderUserId, $repliedToMessageId, $text);
   sendMessage($chatId, 'Fertig. Du kannst die Umfrage nun mit <code>@stammtischanmeldung_bot $title</code> in Gruppen teilen.');
 }
