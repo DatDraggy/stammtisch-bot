@@ -96,6 +96,8 @@ function getPoll($userId, $feedbackMessageId) {
 
 function answerInlineQuery($inlineQueryId, $results) {
   global $config;
+
+  mail($config['mail'], 'Test', $config['url'] . "answerInlineQuery?inline_query_id=$inlineQueryId&results=$results&is_personal=true");
   $response = file_get_contents($config['url'] . "answerInlineQuery?inline_query_id=$inlineQueryId&results=$results&is_personal=true");
   //Might use http_build_query in the future
 }
