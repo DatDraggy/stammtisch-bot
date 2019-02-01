@@ -6,6 +6,7 @@ $data = json_decode($response, true);
 $dump = print_r($data, true);
 
 $dbConnection = buildDatabaseConnection($config);
+mail($config['mail'], 'Test', $dump);
 
 if (isset($data['inline_query'])) {
   $inlineQueryId = $data['inline_query']['id'];
@@ -55,7 +56,6 @@ if (isset($data['inline_query'])) {
       'description' => $attendeesYes + $attendeesMaybe + $attendeesNo . ' Teilnehmer'
     );
   }
-  mail($config['mail'], 'Tets', json_encode($results));
   answerInlineQuery($inlineQueryId, json_encode($results));
   die();
 }
