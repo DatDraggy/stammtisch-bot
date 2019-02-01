@@ -140,7 +140,9 @@ function getPollAttendees($pollId){
 
 function buildPollAttendees($pollId, $yes, $maybe, $no){
   global $dbConnection, $config;
-  $return = "Anmeldungen - $yes:
+  $return = "
+
+<b>Anmeldungen - $yes</b>
 ";
 
   try {
@@ -157,7 +159,7 @@ function buildPollAttendees($pollId, $yes, $maybe, $no){
     }
 
     $return .= "
-Vielleicht - $maybe
+<b>Vielleicht - $maybe</b>
 ";
 
     $sql = "SELECT nickname FROM attendees WHERE poll_id = $pollId AND status = 2";
@@ -171,7 +173,7 @@ Vielleicht - $maybe
     }
 
     $return .= "
-Absage - $no
+<b>Absage - $no</b>
 ";
 
     $sql = "SELECT nickname FROM attendees WHERE poll_id = $pollId AND status = 3";
@@ -184,6 +186,23 @@ Absage - $no
 ';
     }
     return $return;
+  } catch (PDOException $e) {
+    notifyOnException('Database Select', $config, $sql, $e);
+  }
+  return false;
+}
+
+function setPollContent($userId, $feedbackMessageId, $text){
+  global $dbConnection, $config;
+
+  try {
+    $sql = "UPDATE polls SET text = $text WHERE user_id = $userId AND feedback_message_id = $feedbackMessageId";
+    $stmt = $dbConnection->prepare('UPDATE polls SET text = :text, status = 1 WHERE user_id = :userId AND feedback_message_id = :feedbackMessageId');
+    $stmt->bindParam(':text', $text);
+    $stmt->bindParam(':userId', $userId);
+    $stmt->bindParam(':feedbackMessageId', $feedbackMessageId);
+    $stmt->execute();
+    return true;
   } catch (PDOException $e) {
     notifyOnException('Database Select', $config, $sql, $e);
   }

@@ -51,8 +51,7 @@ if (isset($data['inline_query'])) {
         'disable_web_page_preview' => true
       ),
       'reply_markup' => $replyMarkup,
-      'description' => /*$attendeesYes+$attendeesMaybe+$attendeesNo . ' ' .*/
-        'Teilnehmer'
+      'description' => $attendeesYes + $attendeesMaybe + $attendeesNo . ' Teilnehmer'
     );
   }
   mail($config['mail'], 'Tets', json_encode($results));
@@ -107,6 +106,6 @@ Um anzufangen, sende mir einfach den Titel deiner Registration, dann können wir
     sendMessage($chatId, 'Error oder nicht gefunden');
     die();
   }
-  //setPollContent($senderUserId, $repliedToMessageId, $text);
-  sendMessage($chatId, 'Fertig. Du kannst die Umfrage nun mit <code>@stammtischanmeldung_bot $title</code> in Gruppen teilen.');
+  setPollContent($senderUserId, $repliedToMessageId, $text);
+  sendMessage($chatId, "Fertig. Du kannst die Umfrage nun mit <code>@stammtischanmeldung_bot $title</code> in Gruppen teilen.");
 }
