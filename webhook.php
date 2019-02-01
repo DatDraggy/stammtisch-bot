@@ -24,19 +24,19 @@ if (isset($data['inline_query'])) {
         array(
           array(
             'text' => 'Anmeldung - ' . $attendeesYes,
-            'callback_data' => ''
+            'callback_data' => 'Yes'
           )
         ),
         array(
           array(
             'text' => 'Vielleicht - ' . $attendeesMaybe,
-            'callback_data' => ''
+            'callback_data' => 'Maybe'
           )
         ),
         array(
           array(
             'text' => 'Abmeldung - ' . $attendeesNo,
-            'callback_data' => ''
+            'callback_data' => 'No'
           )
         )
       )
