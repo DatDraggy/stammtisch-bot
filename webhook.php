@@ -6,7 +6,6 @@ $data = json_decode($response, true);
 $dump = print_r($data, true);
 
 $dbConnection = buildDatabaseConnection($config);
-mail($config['mail'], 'Test', $dump);
 if (isset($data['callback_query'])) {
   $queryId = $data['callback_query']['id'];
   answerCallbackQuery($queryId, 'Gespeichert.');
