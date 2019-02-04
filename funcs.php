@@ -73,25 +73,45 @@ function createPoll($userId, $userMessageId, $feedbackMessageId, $title) {
   }
 }
 
-function getPoll($userId, $feedbackMessageId) {
+function getPoll($userId, $feedbackMessageId, $inlineQueryMessageId = '') {
   global $dbConnection, $config;
 
-  try {
-    $sql = "SELECT id, status, title FROM polls WHERE user_id = $userId AND feedback_message_id = $feedbackMessageId";
-    $stmt = $dbConnection->prepare('SELECT id, status, title FROM polls WHERE user_id = :userId AND feedback_message_id = :feedbackMessageId');
-    $stmt->bindParam(':userId', $userId);
-    $stmt->bindParam(':feedbackMessageId', $feedbackMessageId);
-    $stmt->execute();
-    if ($stmt->rowCount() > 0) {
-      return $stmt->fetch();
+  if (empty($inlineQueryMessageId)) {
+    try {
+      $sql = "SELECT id, status, title FROM polls WHERE user_id = $userId AND feedback_message_id = $feedbackMessageId";
+      $stmt = $dbConnection->prepare('SELECT id, status, title FROM polls WHERE user_id = :userId AND feedback_message_id = :feedbackMessageId');
+      $stmt->bindParam(':userId', $userId);
+      $stmt->bindParam(':feedbackMessageId', $feedbackMessageId);
+      $stmt->execute();
+      if ($stmt->rowCount() > 0) {
+        return $stmt->fetch();
+      }
+    } catch (PDOException $e) {
+      notifyOnException('Database Select', $config, $sql, $e);
     }
-  } catch (PDOException $e) {
-    notifyOnException('Database Select', $config, $sql, $e);
+    return [
+      false,
+      false,
+      false
+    ];
+  } else {
+    try {
+      $sql = "SELECT id, status, title FROM polls INNER JOIN messages m on polls.id = m.poll_id WHERE m.inline_message_id = $inlineQueryMessageId";
+      $stmt = $dbConnection->prepare('SELECT id, status, title FROM polls INNER JOIN messages m on polls.id = m.poll_id WHERE m.inline_message_id = :inlineQueryMessageId');
+      $stmt->bindParam(':inlineQueryMessageId', $inlineQueryMessageId);
+      $stmt->execute();
+      if ($stmt->rowCount() > 0) {
+        return $stmt->fetch();
+      }
+    } catch (PDOException $e) {
+      notifyOnException('Database Select', $config, $sql, $e);
+    }
+    return [
+      false,
+      false,
+      false
+    ];
   }
-  return [
-    false,
-    false
-  ];
 }
 
 function answerInlineQuery($inlineQueryId, $results) {
@@ -253,4 +273,126 @@ function newPollPost($inlineQueryMessageId, $pollId) {
     notifyOnException('Database Select', $config, $sql, $e);
   }
   return false;
+}
+
+function closePoll($pollId) {
+  global $dbConnection, $config;
+
+  try {
+    $sql = "UPDATE polls SET status = 0 WHERE id = $pollId";
+    $stmt = $dbConnection->prepare('UPDATE polls SET status = 0 WHERE id = :pollId');
+    $stmt->bindParam(':pollId', $pollId);
+    $stmt->execute();
+    return true;
+  } catch (PDOException $e) {
+    notifyOnException('Database Select', $config, $sql, $e);
+  }
+  return false;
+}
+
+function setAttendanceStatus($pollId, $userId, $nickname, $status) {
+  global $dbConnection, $config;
+
+  try {
+    $sql = "SELECT id FROM attendees WHERE poll_id = $pollId";
+    $stmt = $dbConnection->prepare('SELECT id FROM attendees WHERE poll_id = :pollId');
+    $stmt->bindParam(':pollId', $pollId);
+    $stmt->execute();
+    $stmt->fetch();
+  } catch (PDOException $e) {
+    notifyOnException('Database Select', $config, $sql, $e);
+  }
+  if ($stmt->rowCount() > 0) {
+    //Update
+    try {
+      $sql = "UPDATE attendees SET status = $status, nickname = $nickname WHERE poll_id = $pollId AND user_id = $userId";
+      $stmt = $dbConnection->prepare('UPDATE attendees SET status = :status, nickname = :nickname WHERE poll_id = :pollId AND user_id = :userId');
+      $stmt->bindParam(':status', $status);
+      $stmt->bindParam(':nickname', $nickname);
+      $stmt->bindParam(':pollId', $pollId);
+      $stmt->bindParam(':userId', $userId);
+      $stmt->execute();
+    } catch (PDOException $e) {
+      notifyOnException('Database Update', $config, $sql, $e);
+    }
+  } else {
+    //Insert
+    try {
+      $sql = "INSERT INTO attendees(poll_id, user_id, nickname, status) VALUES ($pollId, $userId, $nickname, $status)";
+      $stmt = $dbConnection->prepare('INSERT INTO attendees(poll_id, user_id, nickname, status) VALUES (:pollId, :userId, :nickname, :status)');
+      $stmt->bindParam(':pollId', $pollId);
+      $stmt->bindParam(':userId', $userId);
+      $stmt->bindParam(':name', $nickname);
+      $stmt->bindParam(':status', $status);
+      $stmt->execute();
+    } catch (PDOException $e) {
+      notifyOnException('Database Insert', $config, $sql, $e);
+    }
+  }
+}
+
+function updatePoll($pollId) {
+  global $dbConnection, $config;
+
+  try {
+    $sql = "SELECT inline_message_id, text FROM messages INNER JOIN polls p on messages.poll_id = p.id WHERE poll_id = $pollId";
+    $stmt = $dbConnection->prepare('SELECT inline_message_id, text FROM messages INNER JOIN polls p on messages.poll_id = p.id WHERE poll_id = :pollId');
+    $stmt->bindParam(':pollId', $pollId);
+    $stmt->execute();
+    $rows = $stmt->fetchAll();
+  } catch (PDOException $e) {
+    notifyOnException('Database Select', $config, $sql, $e);
+  }
+  foreach ($rows as $row) {
+    $pollText = $row['text'];
+    list($attendeesYes, $attendeesMaybe, $attendeesNo) = getPollAttendees($pollId);
+    $text = $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
+    $replyMarkup = array(
+      'inline_keyboard' => array(
+        array(
+          array(
+            'text' => 'Anmeldung - ' . $attendeesYes,
+            'callback_data' => 'vote|0|1|0'
+          )
+        ),
+        array(
+          array(
+            'text' => 'Vielleicht - ' . $attendeesMaybe,
+            'callback_data' => 'vote|0|2|0'
+          )
+        ),
+        array(
+          array(
+            'text' => 'Abmeldung - ' . $attendeesNo,
+            'callback_data' => 'vote|0|3|0'
+          )
+        )
+      )
+    );
+    editMessageText($row['inline_message_id'], $text, $replyMarkup);
+  }
+}
+
+function editMessageText($inlineMessageId, $text, $replyMarkup) {
+  global $config;
+  //$response = file_get_contents($config['url'] . "answerInlineQuery?inline_query_id=$inlineQueryId&results=$results&is_personal=true");
+  $url = $config['url'] . "editMessageText";
+
+  $data = array(
+    'inline_message_id' => $inlineMessageId,
+    'text' => $text,
+    'parse_mode' => 'html',
+    'disable_web_page_preview' => true,
+    'reply_markup' => $replyMarkup
+  );
+  // use key 'http' even if you send the request to https://...
+  $options = array(
+    'http' => array(
+      'header' => "Content-type: application/json\r\n",
+      'method' => 'POST',
+      'content' => json_encode($data)
+    )
+  );
+  $context = stream_context_create($options);
+  $result = file_get_contents($url, false, $context);
 }

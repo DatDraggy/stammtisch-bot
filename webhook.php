@@ -7,9 +7,56 @@ $dump = print_r($data, true);
 
 $dbConnection = buildDatabaseConnection($config);
 if (isset($data['callback_query'])) {
-  $queryId = $data['callback_query']['id'];
-  mail($config['mail'], 'Test', print_r($data, true));
-  answerCallbackQuery($queryId, 'Gespeichert.');
+  $chatId = $data['callback_query']['message']['chat']['id'];
+  $chatType = $data['callback_query']['message']['chat']['type'];
+  $callbackData = $data['callback_query']['data'];
+  $senderUserId = $data['callback_query']['from']['id'];
+
+  if (stripos($callbackData, '|') !== false) {
+    list($method, $feedbackMessageId, $confirm, $time) = explode('|', $callbackData);
+    $queryId = $data['callback_query']['id'];
+    $senderName = $data['callback_query']['from']['first_name'];
+    if (isset($data['callback_query']['from']['last_name'])) {
+      $senderName .= ' ' . $data['callback_query']['from']['last_name'];
+    }
+    if ($method === 'vote') {
+      $inlineQueryMessageId = $data['callback_query']['inline_message_id'];
+      $pollId = getPoll('', '', $inlineQueryMessageId)['id'];
+      setAttendanceStatus($pollId, $senderUserId, $senderName, $confirm);
+      updatePoll($pollId);
+      answerCallbackQuery($queryId);
+    } else if ($method === 'close') {
+      $pollId = getPoll($senderUserId, $feedbackMessageId)['id'];
+      if ($confirm == 1 && $time + 10 >= time()) {
+        if (closePoll($pollId)) {
+          answerCallbackQuery($queryId);
+          list($attendeesYes, $attendeesMaybe, $attendeesNo) = getPollAttendees($pollId);
+          $attendees = buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
+          sendMessage($chatId, "Umfrage geschlossen. 
+$attendees");
+        } else {
+          answerCallbackQuery($queryId, 'Fehler');
+        }
+      } else {
+        $replyMarkup = array(
+          'inline_keyboard' => array(
+            array(
+              array(
+                'text' => 'Ja',
+                'callback_data' => 'close|' . $feedbackMessageId . '|1|' . time()
+              ),
+              array(
+                'text' => 'Nein',
+                'callback_data' => 'no'
+              )
+            )
+          )
+        );
+        answerCallbackQuery($queryId);
+        sendMessage($chatId, "Willst du die Umfrage wirklich schließen?", json_encode($replyMarkup));
+      }
+    }
+  }
 } else if (isset($data['inline_query'])) {
   $inlineQueryId = $data['inline_query']['id'];
   $senderUserId = $data['inline_query']['from']['id'];
@@ -28,19 +75,19 @@ if (isset($data['callback_query'])) {
         array(
           array(
             'text' => 'Anmeldung - ' . $attendeesYes,
-            'callback_data' => 'Yes'
+            'callback_data' => 'vote|0|1|0'
           )
         ),
         array(
           array(
             'text' => 'Vielleicht - ' . $attendeesMaybe,
-            'callback_data' => 'Maybe'
+            'callback_data' => 'vote|0|2|0'
           )
         ),
         array(
           array(
             'text' => 'Abmeldung - ' . $attendeesNo,
-            'callback_data' => 'No'
+            'callback_data' => 'vote|0|3|0'
           )
         )
       )
@@ -122,7 +169,7 @@ Um anzufangen, sende mir einfach den Titel deiner Registration, dann können wir
       array(
         array(
           'text' => 'Schließen',
-          'callback_data' => 'close'
+          'callback_data' => "close|$repliedToMessageId|0|" . time()
         )
       )
     )
