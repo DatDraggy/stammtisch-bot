@@ -116,6 +116,7 @@ function answerInlineQuery($inlineQueryId, $results) {
   $result = file_get_contents($url, false, $context);
   if (true) {
     mail($config['mail'], 'Bot Error', print_r($options, true));
+    mail($config['mail'], 'Bot Error', print_r($results, true));
   }
 }
 
