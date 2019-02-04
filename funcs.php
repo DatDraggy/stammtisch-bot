@@ -96,10 +96,28 @@ function getPoll($userId, $feedbackMessageId) {
 
 function answerInlineQuery($inlineQueryId, $results) {
   global $config;
+  //$response = file_get_contents($config['url'] . "answerInlineQuery?inline_query_id=$inlineQueryId&results=$results&is_personal=true");
+  $url = $config['url'] . "answerInlineQuery";
 
-  mail($config['mail'], 'Test', $config['url'] . "answerInlineQuery?inline_query_id=$inlineQueryId&results=$results&is_personal=true");
-  $response = file_get_contents($config['url'] . "answerInlineQuery?inline_query_id=$inlineQueryId&results=$results&is_personal=true");
-  //Might use http_build_query in the future
+  $data = array(
+    'inline_query_id' => $inlineQueryId,
+    'results' => $results,
+    'chat_id' => $chatId,
+    'is_personal' => true
+  );
+  // use key 'http' even if you send the request to https://...
+  $options = array(
+    'http' => array(
+      'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+      'method' => 'POST',
+      'content' => http_build_query($data)
+    )
+  );
+  $context = stream_context_create($options);
+  $result = file_get_contents($url, false, $context);
+  if ($result === FALSE) {
+    mail($config['mail'], 'Bot Error', $result);
+  }
 }
 
 function getAllPolls($userId, $search = '') {
@@ -225,7 +243,7 @@ function setPollContent($userId, $feedbackMessageId, $text) {
   return false;
 }
 
-function newPollPost($inlineQueryMessageId, $pollId){
+function newPollPost($inlineQueryMessageId, $pollId) {
   global $dbConnection, $config;
 
   try {

@@ -59,8 +59,7 @@ if (isset($data['callback_query'])) {
     );
     //ToDo: Use Post not GET
   }
-  mail($config['mail'], 'Test', json_encode($results));
-  answerInlineQuery($inlineQueryId, json_encode($results));
+  answerInlineQuery($inlineQueryId, $results);
   die();
 } else if (isset($data['chosen_inline_result'])) {
   $inlineQueryMessageId = $data['chosen_inline_result']['inline_message_id'];
