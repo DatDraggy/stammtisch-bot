@@ -102,7 +102,6 @@ function answerInlineQuery($inlineQueryId, $results) {
   $data = array(
     'inline_query_id' => $inlineQueryId,
     'results' => $results,
-    'chat_id' => $chatId,
     'is_personal' => true
   );
   // use key 'http' even if you send the request to https://...
@@ -115,7 +114,7 @@ function answerInlineQuery($inlineQueryId, $results) {
   );
   $context = stream_context_create($options);
   $result = file_get_contents($url, false, $context);
-  if ($result === FALSE) {
+  if (true) {
     mail($config['mail'], 'Bot Error', $result);
   }
 }
