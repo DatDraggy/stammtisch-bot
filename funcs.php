@@ -114,10 +114,6 @@ function answerInlineQuery($inlineQueryId, $results) {
   );
   $context = stream_context_create($options);
   $result = file_get_contents($url, false, $context);
-  if (true) {
-    mail($config['mail'], 'Bot Error', print_r($options, true));
-    mail($config['mail'], 'Bot Error', print_r($results, true));
-  }
 }
 
 function getAllPolls($userId, $search = '') {

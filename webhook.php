@@ -8,6 +8,7 @@ $dump = print_r($data, true);
 $dbConnection = buildDatabaseConnection($config);
 if (isset($data['callback_query'])) {
   $queryId = $data['callback_query']['id'];
+  mail($config['mail'], 'Test', print_r($data, true));
   answerCallbackQuery($queryId, 'Gespeichert.');
 } else if (isset($data['inline_query'])) {
   $inlineQueryId = $data['inline_query']['id'];
@@ -116,5 +117,15 @@ Um anzufangen, sende mir einfach den Titel deiner Registration, dann können wir
     die();
   }
   setPollContent($senderUserId, $repliedToMessageId, $text);
-  sendMessage($chatId, "Fertig. Du kannst die Umfrage nun mit <code>@stammtischanmeldung_bot $title</code> in Gruppen teilen.");
+  $replyMarkup = array(
+    'inline_keyboard' => array(
+      array(
+        array(
+          'text' => 'Schließen',
+          'callback_data' => 'close'
+        )
+      )
+    )
+  );
+  sendMessage($chatId, "Fertig. Du kannst die Umfrage nun mit <code>@stammtischanmeldung_bot $title</code> in Gruppen teilen.", json_encode($replyMarkup));
 }
