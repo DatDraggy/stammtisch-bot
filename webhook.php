@@ -50,7 +50,7 @@ if (isset($data['callback_query'])) {
       'id' => $pollId,
       'title' => $pollTitle,
       'input_message_content' => array(
-        'message_text' => urlencode($pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo)),
+        'message_text' => $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo),
         'parse_mode' => 'html',
         'disable_web_page_preview' => true
       ),
