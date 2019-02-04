@@ -127,5 +127,5 @@ Um anzufangen, sende mir einfach den Titel deiner Registration, dann können wir
       )
     )
   );
-  sendMessage($chatId, "Fertig. Du kannst die Umfrage nun mit <code>@stammtischanmeldung_bot $title</code> in Gruppen teilen.", json_encode($replyMarkup));
+  sendMessage($chatId, "Fertig. Du kannst die Umfrage nun mit <code>@stammtischanmeldung_bot $title</code> in Gruppen teilen.", '', json_encode($replyMarkup));
 }
