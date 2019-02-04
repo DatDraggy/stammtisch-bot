@@ -107,9 +107,9 @@ function answerInlineQuery($inlineQueryId, $results) {
   // use key 'http' even if you send the request to https://...
   $options = array(
     'http' => array(
-      'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+      'header' => "Content-type: application/json\r\n",
       'method' => 'POST',
-      'content' => $data
+      'content' => json_encode($data)
     )
   );
   $context = stream_context_create($options);
