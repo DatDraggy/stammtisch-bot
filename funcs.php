@@ -294,9 +294,10 @@ function setAttendanceStatus($pollId, $userId, $nickname, $status) {
   global $dbConnection, $config;
 
   try {
-    $sql = "SELECT id FROM attendees WHERE poll_id = $pollId";
-    $stmt = $dbConnection->prepare('SELECT id FROM attendees WHERE poll_id = :pollId');
+    $sql = "SELECT id FROM attendees WHERE poll_id = $pollId AND user_id = $userId";
+    $stmt = $dbConnection->prepare('SELECT id FROM attendees WHERE poll_id = :pollId AND user_id = :userId');
     $stmt->bindParam(':pollId', $pollId);
+    $stmt->bindParam(':userId', $userId);
     $stmt->execute();
     $stmt->fetch();
   } catch (PDOException $e) {

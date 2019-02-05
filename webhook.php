@@ -11,14 +11,15 @@ if (isset($data['callback_query'])) {
   $chatType = $data['callback_query']['message']['chat']['type'];
   $callbackData = $data['callback_query']['data'];
   $senderUserId = $data['callback_query']['from']['id'];
-  
+  $queryId = $data['callback_query']['id'];
+  $senderName = $data['callback_query']['from']['first_name'];
+  if (isset($data['callback_query']['from']['last_name'])) {
+    $senderName .= ' ' . $data['callback_query']['from']['last_name'];
+  }
+
   if (stripos($callbackData, '|') !== false) {
     list($method, $feedbackMessageId, $confirm, $time) = explode('|', $callbackData);
-    $queryId = $data['callback_query']['id'];
-    $senderName = $data['callback_query']['from']['first_name'];
-    if (isset($data['callback_query']['from']['last_name'])) {
-      $senderName .= ' ' . $data['callback_query']['from']['last_name'];
-    }
+
     if ($method === 'vote') {
       $inlineQueryMessageId = $data['callback_query']['inline_message_id'];
       $pollId = getPoll('', '', $inlineQueryMessageId)['id'];
