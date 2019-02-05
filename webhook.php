@@ -8,6 +8,7 @@ $dump = print_r($data, true);
 $dbConnection = buildDatabaseConnection($config);
 if (isset($data['callback_query'])) {
   $chatId = $data['callback_query']['message']['chat']['id'];
+  $messageId = $data['callback_query']['message']['id'];
   $chatType = $data['callback_query']['message']['chat']['type'];
   $callbackData = $data['callback_query']['data'];
   $senderUserId = $data['callback_query']['from']['id'];
@@ -36,7 +37,8 @@ if (isset($data['callback_query'])) {
           updatePoll($pollId, true);
           list($attendeesYes, $attendeesMaybe, $attendeesNo) = getPollAttendees($pollId);
           $attendees = buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
-          sendMessage($chatId, "Umfrage geschlossen. 
+          sendMessage($chatId, "");
+          editMessageText($chatId, $messageId, "Umfrage geschlossen. 
 $attendees");
         } else {
           answerCallbackQuery($queryId, 'Fehler');
@@ -57,7 +59,7 @@ $attendees");
           )
         );
         answerCallbackQuery($queryId);
-        sendMessage($chatId, "Willst du die Umfrage wirklich schließen?", '', json_encode($replyMarkup));
+        editMessageText($chatId, $messageId, 'Willst du die Umfrage wirklich schließen?', $replyMarkup);
       }
     }
   }

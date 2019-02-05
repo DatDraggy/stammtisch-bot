@@ -375,23 +375,27 @@ function updatePoll($pollId, $close = false) {
       $replyMarkup = '';
     }
 
-    editMessageText($row['inline_message_id'], $text, $replyMarkup);
+    editMessageText('', '', $text, $replyMarkup, $row['inline_message_id']);
   }
 }
 
-function editMessageText($inlineMessageId, $text, $replyMarkup) {
+function editMessageText($chatId, $messageId, $text, $replyMarkup = '', $inlineMessageId = '') {
   global $config;
-  //$response = file_get_contents($config['url'] . "answerInlineQuery?inline_query_id=$inlineQueryId&results=$results&is_personal=true");
+
   $url = $config['url'] . "editMessageText";
 
-  $data = array(
-    'inline_message_id' => $inlineMessageId,
-    'text' => $text,
-    'parse_mode' => 'html',
-    'disable_web_page_preview' => true,
-    'reply_markup' => $replyMarkup
-  );
-  // use key 'http' even if you send the request to https://...
+  if (empty($inlineMessageId)) {
+
+  } else {
+    $data = array(
+      'chat_id' => $chatId,
+      'message_id' => $messageId,
+      'text' => $text,
+      'parse_mode' => 'html',
+      'disable_web_page_preview' => true,
+      'reply_markup' => $replyMarkup
+    );
+  }
   $options = array(
     'http' => array(
       'header' => "Content-type: application/json\r\n",
