@@ -11,7 +11,7 @@ if (isset($data['callback_query'])) {
   $chatType = $data['callback_query']['message']['chat']['type'];
   $callbackData = $data['callback_query']['data'];
   $senderUserId = $data['callback_query']['from']['id'];
-
+  mail($config['mail'], 'Test', $dump);
   if (stripos($callbackData, '|') !== false) {
     list($method, $feedbackMessageId, $confirm, $time) = explode('|', $callbackData);
     $queryId = $data['callback_query']['id'];
@@ -57,6 +57,7 @@ $attendees");
       }
     }
   }
+  die();
 } else if (isset($data['inline_query'])) {
   $inlineQueryId = $data['inline_query']['id'];
   $senderUserId = $data['inline_query']['from']['id'];
