@@ -332,7 +332,7 @@ function setAttendanceStatus($pollId, $userId, $nickname, $status) {
   }
 }
 
-function updatePoll($pollId) {
+function updatePoll($pollId, $close = false) {
   global $dbConnection, $config;
 
   try {
@@ -348,28 +348,33 @@ function updatePoll($pollId) {
     $pollText = $row['text'];
     list($attendeesYes, $attendeesMaybe, $attendeesNo) = getPollAttendees($pollId);
     $text = $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
-    $replyMarkup = array(
-      'inline_keyboard' => array(
-        array(
+    if (!$close) {
+      $replyMarkup = array(
+        'inline_keyboard' => array(
           array(
-            'text' => 'Anmeldung - ' . $attendeesYes,
-            'callback_data' => 'vote|0|1|0'
-          )
-        ),
-        array(
+            array(
+              'text' => 'Anmeldung - ' . $attendeesYes,
+              'callback_data' => 'vote|0|1|0'
+            )
+          ),
           array(
-            'text' => 'Vielleicht - ' . $attendeesMaybe,
-            'callback_data' => 'vote|0|2|0'
-          )
-        ),
-        array(
+            array(
+              'text' => 'Vielleicht - ' . $attendeesMaybe,
+              'callback_data' => 'vote|0|2|0'
+            )
+          ),
           array(
-            'text' => 'Abmeldung - ' . $attendeesNo,
-            'callback_data' => 'vote|0|3|0'
+            array(
+              'text' => 'Abmeldung - ' . $attendeesNo,
+              'callback_data' => 'vote|0|3|0'
+            )
           )
         )
-      )
-    );
+      );
+    } else {
+      $replyMarkup = '';
+    }
+
     editMessageText($row['inline_message_id'], $text, $replyMarkup);
   }
 }

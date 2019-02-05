@@ -22,15 +22,18 @@ if (isset($data['callback_query'])) {
 
     if ($method === 'vote') {
       $inlineQueryMessageId = $data['callback_query']['inline_message_id'];
-      $pollId = getPoll('', '', $inlineQueryMessageId)['id'];
-      setAttendanceStatus($pollId, $senderUserId, $senderName, $confirm);
-      updatePoll($pollId);
+      list($pollId, $status, $title) = getPoll('', '', $inlineQueryMessageId);
+      if($status === 1) {
+        setAttendanceStatus($pollId, $senderUserId, $senderName, $confirm);
+        updatePoll($pollId);
+      }
       answerCallbackQuery($queryId);
     } else if ($method === 'close') {
       $pollId = getPoll($senderUserId, $feedbackMessageId)['id'];
       if ($confirm == 1 && $time + 10 >= time()) {
         if (closePoll($pollId)) {
           answerCallbackQuery($queryId);
+          updatePoll($pollId, true);
           list($attendeesYes, $attendeesMaybe, $attendeesNo) = getPollAttendees($pollId);
           $attendees = buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
           sendMessage($chatId, "Umfrage geschlossen. 
