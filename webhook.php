@@ -8,7 +8,7 @@ $dump = print_r($data, true);
 $dbConnection = buildDatabaseConnection($config);
 if (isset($data['callback_query'])) {
   $chatId = $data['callback_query']['message']['chat']['id'];
-  $messageId = $data['callback_query']['message']['id'];
+  $messageId = $data['callback_query']['message']['message_id'];
   $chatType = $data['callback_query']['message']['chat']['type'];
   $callbackData = $data['callback_query']['data'];
   $senderUserId = $data['callback_query']['from']['id'];
