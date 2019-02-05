@@ -385,11 +385,17 @@ function editMessageText($chatId, $messageId, $text, $replyMarkup = '', $inlineM
   $url = $config['url'] . "editMessageText";
 
   if (empty($inlineMessageId)) {
-
-  } else {
     $data = array(
       'chat_id' => $chatId,
       'message_id' => $messageId,
+      'text' => $text,
+      'parse_mode' => 'html',
+      'disable_web_page_preview' => true,
+      'reply_markup' => $replyMarkup
+    );
+  } else {
+    $data = array(
+      'inline_message_id' => $inlineMessageId,
       'text' => $text,
       'parse_mode' => 'html',
       'disable_web_page_preview' => true,
