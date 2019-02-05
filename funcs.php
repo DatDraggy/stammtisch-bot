@@ -322,7 +322,7 @@ function setAttendanceStatus($pollId, $userId, $nickname, $status) {
       $stmt = $dbConnection->prepare('INSERT INTO attendees(poll_id, user_id, nickname, status) VALUES (:pollId, :userId, :nickname, :status)');
       $stmt->bindParam(':pollId', $pollId);
       $stmt->bindParam(':userId', $userId);
-      $stmt->bindParam(':name', $nickname);
+      $stmt->bindParam(':nickname', $nickname);
       $stmt->bindParam(':status', $status);
       $stmt->execute();
     } catch (PDOException $e) {
