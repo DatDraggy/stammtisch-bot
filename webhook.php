@@ -53,7 +53,7 @@ $attendees");
           )
         );
         answerCallbackQuery($queryId);
-        sendMessage($chatId, "Willst du die Umfrage wirklich schließen?", json_encode($replyMarkup));
+        sendMessage($chatId, "Willst du die Umfrage wirklich schließen?", '', json_encode($replyMarkup));
       }
     }
   }
