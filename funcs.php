@@ -402,8 +402,8 @@ function updatePollText($pollId){
   global $dbConnection, $config;
 
   try{
-    $sql = "UPDATE polls SET text = text_new WHERE id = $pollId AND text_new IS NOT NULL";
-    $stmt = $dbConnection->prepare('UPDATE polls SET text = text_new WHERE id = :pollId AND text_new IS NOT NULL');
+    $sql = "UPDATE polls SET text = text_new, text_new = NULL WHERE id = $pollId AND text_new IS NOT NULL";
+    $stmt = $dbConnection->prepare('UPDATE polls SET text = text_new, text_new = NULL WHERE id = :pollId AND text_new IS NOT NULL');
     $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
   }catch (PDOException $e) {
