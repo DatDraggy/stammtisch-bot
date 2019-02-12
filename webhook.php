@@ -136,7 +136,7 @@ if (isset($data['message']['text'])) {
   if (isset($data['message']['entities'])) {
     $additionalOffset = 0;
     foreach ($data['message']['entities'] as $entity) {
-      $offset = $additionalOffset;
+      $offset = $entity['offset'] + $additionalOffset;
       if ($entity['type'] === 'italic') {
         $text = substr_replace($text, '<i>', $offset, NULL);
         $text = substr_replace($text, '</i>', $offset + 3 + $entity['length'], NULL);
