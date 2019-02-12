@@ -22,7 +22,7 @@ if (isset($data['callback_query'])) {
 
   if (stripos($callbackData, '|') !== false) {
     list($method, $feedbackMessageId, $confirm, $time) = explode('|', $callbackData);
-    if($method === 'no'){
+    if($callbackData === 'no'){
       editMessageText($chatId, $messageId, $messageText);
       answerCallbackQuery($queryId);
     }
