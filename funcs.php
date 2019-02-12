@@ -458,7 +458,7 @@ function checkLastExecute($timeouts, $command, $type, $id) {
   $now = time();
   $lastExecute = $timeouts[$id][$command];
   if ($now < $lastExecute + $config['commandInterval']) {
-    die();
+    return false;
   }
   $timeouts[$id][$command] = $now;
   return $timeouts;
