@@ -313,27 +313,30 @@ function setAttendanceStatus($pollId, $userId, $nickname, $status) {
   global $dbConnection, $config;
 
   try {
-    $sql = "SELECT id FROM attendees WHERE poll_id = $pollId AND user_id = $userId";
+    $sql = "SELECT id, status FROM attendees WHERE poll_id = $pollId AND user_id = $userId";
     $stmt = $dbConnection->prepare('SELECT id FROM attendees WHERE poll_id = :pollId AND user_id = :userId');
     $stmt->bindParam(':pollId', $pollId);
     $stmt->bindParam(':userId', $userId);
     $stmt->execute();
-    $stmt->fetch();
+    $row = $stmt->fetch();
   } catch (PDOException $e) {
     notifyOnException('Database Select', $config, $sql, $e);
   }
   if ($stmt->rowCount() > 0) {
     //Update
-    try {
-      $sql = "UPDATE attendees SET status = $status, nickname = $nickname, time = UNIX_TIMESTAMP() WHERE poll_id = $pollId AND user_id = $userId";
-      $stmt = $dbConnection->prepare('UPDATE attendees SET status = :status, nickname = :nickname, time = UNIX_TIMESTAMP() WHERE poll_id = :pollId AND user_id = :userId');
-      $stmt->bindParam(':status', $status);
-      $stmt->bindParam(':nickname', $nickname);
-      $stmt->bindParam(':pollId', $pollId);
-      $stmt->bindParam(':userId', $userId);
-      $stmt->execute();
-    } catch (PDOException $e) {
-      notifyOnException('Database Update', $config, $sql, $e);
+    if($row['status'] != $status) {
+      try {
+        $sql = "UPDATE attendees SET status = $status, nickname = $nickname, time = UNIX_TIMESTAMP() WHERE poll_id = $pollId AND user_id = $userId";
+        $stmt = $dbConnection->prepare('UPDATE attendees SET status = :status, nickname = :nickname, time = UNIX_TIMESTAMP() WHERE poll_id = :pollId AND user_id = :userId');
+        $stmt->bindParam(':status', $status);
+        $stmt->bindParam(':nickname', $nickname);
+        $stmt->bindParam(':pollId', $pollId);
+        $stmt->bindParam(':userId', $userId);
+        $stmt->execute();
+      }
+      catch (PDOException $e) {
+        notifyOnException('Database Update', $config, $sql, $e);
+      }
     }
   } else {
     //Insert
