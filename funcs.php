@@ -449,3 +449,17 @@ function editMessageText($chatId, $messageId, $text, $replyMarkup = '', $inlineM
   $context = stream_context_create($options);
   $result = file_get_contents($url, false, $context);
 }
+
+function checkLastExecute($timeouts, $command, $type, $id) {
+  if ($type === 'private') {
+    return $timeouts;
+  }
+  global $config;
+  $now = time();
+  $lastExecute = $timeouts[$id][$command];
+  if ($now < $lastExecute + $config['commandInterval']) {
+    die();
+  }
+  $timeouts[$id][$command] = $now;
+  return $timeouts;
+}

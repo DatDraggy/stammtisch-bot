@@ -4,6 +4,13 @@ require_once(__DIR__ . "/config.php");
 $response = file_get_contents('php://input');
 $data = json_decode($response, true);
 $dump = print_r($data, true);
+if(file_exists($config['timeoutsave'])){
+  $timeouts = json_decode(file_get_contents($config['timeoutsave']),true);
+}
+else{
+  file_put_contents($config['timeoutsave'], '{}');
+  $timeouts = json_decode(file_get_contents($config['timeoutsave']),true);
+}
 
 $dbConnection = buildDatabaseConnection($config);
 if (isset($data['callback_query'])) {
@@ -21,6 +28,7 @@ if (isset($data['callback_query'])) {
   if (stripos($callbackData, '|') !== false) {
     list($method, $feedbackMessageId, $confirm, $time) = explode('|', $callbackData);
     if ($method === 'vote') {
+      $timeouts = checkLastExecute($timeouts, 'vote', $chatType, $chatId);
       $inlineQueryMessageId = $data['callback_query']['inline_message_id'];
       list($pollId, $status, $title, $pollText) = getPoll('', '', $inlineQueryMessageId);
       if($status === 1) {
