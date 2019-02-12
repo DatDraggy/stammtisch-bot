@@ -200,8 +200,8 @@ function buildPollAttendees($pollId, $yes, $maybe, $no) {
   try {
     //$sql = "SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = $userId GROUP BY attendees.poll_id";
     //$stmt = $dbConnection->prepare('SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = :userId GROUP BY attendees.poll_id');
-    $sql = "SELECT nickname FROM attendees WHERE poll_id = $pollId AND status = 1";
-    $stmt = $dbConnection->prepare('SELECT nickname FROM attendees WHERE poll_id = :pollId AND status = 1');
+    $sql = "SELECT nickname FROM attendees WHERE poll_id = $pollId AND status = 1 ORDER BY time ASC";
+    $stmt = $dbConnection->prepare('SELECT nickname FROM attendees WHERE poll_id = :pollId AND status = 1 ORDER BY time ASC');
     $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
     $rows = $stmt->fetchAll();
@@ -214,8 +214,8 @@ function buildPollAttendees($pollId, $yes, $maybe, $no) {
 <b>Vielleicht - [$maybe]</b>
 ";
 
-    $sql = "SELECT nickname FROM attendees WHERE poll_id = $pollId AND status = 2";
-    $stmt = $dbConnection->prepare('SELECT nickname FROM attendees WHERE poll_id = :pollId AND status = 2');
+    $sql = "SELECT nickname FROM attendees WHERE poll_id = $pollId AND status = 2 ORDER BY time ASC";
+    $stmt = $dbConnection->prepare('SELECT nickname FROM attendees WHERE poll_id = :pollId AND status = 2 ORDER BY time ASC');
     $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
     $rows = $stmt->fetchAll();
@@ -228,8 +228,8 @@ function buildPollAttendees($pollId, $yes, $maybe, $no) {
 <b>Abmeldung - [$no]</b>
 ";
 
-    $sql = "SELECT nickname FROM attendees WHERE poll_id = $pollId AND status = 3";
-    $stmt = $dbConnection->prepare('SELECT nickname FROM attendees WHERE poll_id = :pollId AND status = 3');
+    $sql = "SELECT nickname FROM attendees WHERE poll_id = $pollId AND status = 3 ORDER BY time ASC";
+    $stmt = $dbConnection->prepare('SELECT nickname FROM attendees WHERE poll_id = :pollId AND status = 3 ORDER BY time ASC');
     $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
     $rows = $stmt->fetchAll();
@@ -325,8 +325,8 @@ function setAttendanceStatus($pollId, $userId, $nickname, $status) {
   if ($stmt->rowCount() > 0) {
     //Update
     try {
-      $sql = "UPDATE attendees SET status = $status, nickname = $nickname WHERE poll_id = $pollId AND user_id = $userId";
-      $stmt = $dbConnection->prepare('UPDATE attendees SET status = :status, nickname = :nickname WHERE poll_id = :pollId AND user_id = :userId');
+      $sql = "UPDATE attendees SET status = $status, nickname = $nickname, time = UNIX_TIMESTAMP() WHERE poll_id = $pollId AND user_id = $userId";
+      $stmt = $dbConnection->prepare('UPDATE attendees SET status = :status, nickname = :nickname, time = UNIX_TIMESTAMP() WHERE poll_id = :pollId AND user_id = :userId');
       $stmt->bindParam(':status', $status);
       $stmt->bindParam(':nickname', $nickname);
       $stmt->bindParam(':pollId', $pollId);
@@ -338,8 +338,8 @@ function setAttendanceStatus($pollId, $userId, $nickname, $status) {
   } else {
     //Insert
     try {
-      $sql = "INSERT INTO attendees(poll_id, user_id, nickname, status) VALUES ($pollId, $userId, $nickname, $status)";
-      $stmt = $dbConnection->prepare('INSERT INTO attendees(poll_id, user_id, nickname, status) VALUES (:pollId, :userId, :nickname, :status)');
+      $sql = "INSERT INTO attendees(poll_id, user_id, nickname, status, time) VALUES ($pollId, $userId, $nickname, $status, UNIX_TIMESTAMP())";
+      $stmt = $dbConnection->prepare('INSERT INTO attendees(poll_id, user_id, nickname, status, time) VALUES (:pollId, :userId, :nickname, :status, UNIX_TIMESTAMP())');
       $stmt->bindParam(':pollId', $pollId);
       $stmt->bindParam(':userId', $userId);
       $stmt->bindParam(':nickname', $nickname);
