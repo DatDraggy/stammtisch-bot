@@ -10,7 +10,6 @@ if (isset($data['callback_query'])) {
   mail($config['mail'], 'Debug', $dump);
   $chatId = $data['callback_query']['message']['chat']['id'];
   $messageId = $data['callback_query']['message']['message_id'];
-  $messageText = $data['callback_query']['message']['text'];
   $chatType = $data['callback_query']['message']['chat']['type'];
   $callbackData = $data['callback_query']['data'];
   $senderUserId = $data['callback_query']['from']['id'];
@@ -23,7 +22,6 @@ if (isset($data['callback_query'])) {
   if (stripos($callbackData, '|') !== false) {
     list($method, $feedbackMessageId, $confirm, $time) = explode('|', $callbackData);
     if($callbackData === 'no'){
-      editMessageText($chatId, $messageId, $messageText);
       answerCallbackQuery($queryId);
     }
     if ($method === 'vote') {
