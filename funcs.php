@@ -314,7 +314,7 @@ function setAttendanceStatus($pollId, $userId, $nickname, $status) {
 
   try {
     $sql = "SELECT id, status FROM attendees WHERE poll_id = $pollId AND user_id = $userId";
-    $stmt = $dbConnection->prepare('SELECT id FROM attendees WHERE poll_id = :pollId AND user_id = :userId');
+    $stmt = $dbConnection->prepare('SELECT id, status FROM attendees WHERE poll_id = :pollId AND user_id = :userId');
     $stmt->bindParam(':pollId', $pollId);
     $stmt->bindParam(':userId', $userId);
     $stmt->execute();
