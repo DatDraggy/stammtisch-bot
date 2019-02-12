@@ -29,6 +29,7 @@ if (isset($data['callback_query'])) {
     list($method, $feedbackMessageId, $confirm, $time) = explode('|', $callbackData);
     if ($method === 'vote') {
       $timeouts = checkLastExecute($timeouts, 'vote', $chatType, $chatId);
+      file_put_contents($config['timeoutsave'], json_encode($timeouts));
       $inlineQueryMessageId = $data['callback_query']['inline_message_id'];
       list($pollId, $status, $title, $pollText) = getPoll('', '', $inlineQueryMessageId);
       if($status === 1) {
