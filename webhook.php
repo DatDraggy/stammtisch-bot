@@ -167,6 +167,8 @@ Sende mir nun den Inhalt/die Beschreibung der Umfrage.", '', json_encode($forceR
 Ich bin der Stammtisch Bot. Durch mich kannst du Registrationen für Meetups oder Stammtische erstellen.
 Um anzufangen, sende mir einfach den Titel deiner Registration, dann können wir los legen.');
       break;
+    case '/test':
+      mail($config['mail'], 'Dump', $dump);
   }
 } else if (isset($text) && isset($repliedToMessageId)) {
   sendChatAction($chatId, 'typing');
