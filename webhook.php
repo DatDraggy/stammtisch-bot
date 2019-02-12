@@ -133,6 +133,28 @@ $chatType = $data['message']['chat']['type'];
 $senderUserId = $data['message']['from']['id'];
 if (isset($data['message']['text'])) {
   $text = $data['message']['text'];
+  if (isset($data['message']['entities'])) {
+    $additionalOffset = 0;
+    foreach ($data['message']['entities'] as $entity) {
+      $offset = $additionalOffset;
+      if ($entity['type'] === 'italic') {
+        $text = substr_replace($text, '<i>', $offset, NULL);
+        $text = substr_replace($text, '</i>', $offset + 3 + $entity['length'], NULL);
+        $additionalOffset += 6;
+      }
+      else if ($entity['type'] === 'bold') {
+        $text = substr_replace($text, '<b>', $offset, NULL);
+        $text = substr_replace($text, '</b>', $offset + 3 + $entity['length'], NULL);
+        $additionalOffset += 6;
+      }
+      else if ($entity['type'] === 'code') {
+        $text = substr_replace($text, '<code>', $offset, NULL);
+        $text = substr_replace($text, '</code>', $offset + 6 + $entity['length'], NULL);
+        $additionalOffset += 12;
+      }
+      //+ 3 and 6 because length of tags ads up
+    }
+  }
 }
 if (isset($data['message']['reply_to_message'])) {
   $replyToMessage = $data['message']['reply_to_message'];
