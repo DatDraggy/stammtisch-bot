@@ -7,7 +7,6 @@ $dump = print_r($data, true);
 
 $dbConnection = buildDatabaseConnection($config);
 if (isset($data['callback_query'])) {
-  mail($config['mail'], 'Debug', $dump);
   $chatId = $data['callback_query']['message']['chat']['id'];
   $messageId = $data['callback_query']['message']['message_id'];
   $chatType = $data['callback_query']['message']['chat']['type'];
@@ -58,7 +57,7 @@ $attendees");
             )
           )
         );
-        answerCallbackQuery($queryId);
+        answerCallbackQuery($queryId, 'Sicher?');
         editMessageText($chatId, $messageId, 'Willst du die Umfrage wirklich schließen?', $replyMarkup);
       }
     }else if($method === 'update'){
