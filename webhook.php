@@ -21,9 +21,6 @@ if (isset($data['callback_query'])) {
 
   if (stripos($callbackData, '|') !== false) {
     list($method, $feedbackMessageId, $confirm, $time) = explode('|', $callbackData);
-    if($callbackData === 'no'){
-      answerCallbackQuery($queryId);
-    }
     if ($method === 'vote') {
       $inlineQueryMessageId = $data['callback_query']['inline_message_id'];
       list($pollId, $status, $title, $pollText) = getPoll('', '', $inlineQueryMessageId);
@@ -70,7 +67,7 @@ $attendees");
       updatePoll($pollId);}
       answerCallbackQuery($queryId, 'Text wurde aktualisiert.');
     }
-  }
+  }else{answerCallbackQuery($queryId);}
   die();
 } else if (isset($data['inline_query'])) {
   $inlineQueryId = $data['inline_query']['id'];
