@@ -64,7 +64,8 @@ $attendees");
       $pollId = getPoll($senderUserId, $feedbackMessageId)['id'];
       if(updatePollText($pollId)){
       updatePoll($pollId);}
-      answerCallbackQuery($queryId, 'Text wurde aktualisiert.');
+      answerCallbackQuery($queryId);
+      editMessageText($chatId, $messageId, 'Text wurde aktualisiert.');
     }
   }else{answerCallbackQuery($queryId);}
   die();
