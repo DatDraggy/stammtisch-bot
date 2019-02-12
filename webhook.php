@@ -191,6 +191,7 @@ Um anzufangen, sende mir einfach den Titel deiner Registration, dann können wir
       break;
     case '/test':
       mail($config['mail'], 'Dump', $dump);
+      sendMessage($chatId, $text);
   }
 } else if (isset($text) && isset($repliedToMessageId)) {
   sendChatAction($chatId, 'typing');
