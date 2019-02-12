@@ -14,9 +14,13 @@ else{
 
 $dbConnection = buildDatabaseConnection($config);
 if (isset($data['callback_query'])) {
-  $chatId = $data['callback_query']['message']['chat']['id'];
-  $messageId = $data['callback_query']['message']['message_id'];
-  $chatType = $data['callback_query']['message']['chat']['type'];
+  if (isset($data['callback_query']['message'])) {
+    $chatId = $data['callback_query']['message']['chat']['id'];
+    $messageId = $data['callback_query']['message']['message_id'];
+    $chatType = $data['callback_query']['message']['chat']['type'];
+  } else {
+    $chatId = $messageId = $chatType = '';
+  }
   $callbackData = $data['callback_query']['data'];
   $senderUserId = $data['callback_query']['from']['id'];
   $queryId = $data['callback_query']['id'];
