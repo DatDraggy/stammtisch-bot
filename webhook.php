@@ -8,7 +8,7 @@ $dump = print_r($data, true);
 $dbConnection = buildDatabaseConnection($config);
 if (isset($data['callback_query'])) {
   $chatId = $data['callback_query']['message']['chat']['id'];
-  $messageId = $data['callback_query']['message']['message_id'];
+  $messageId = $data['callback_query']['message']['message_idn'];
   $chatType = $data['callback_query']['message']['chat']['type'];
   $callbackData = $data['callback_query']['data'];
   $senderUserId = $data['callback_query']['from']['id'];
@@ -23,7 +23,7 @@ if (isset($data['callback_query'])) {
 
     if ($method === 'vote') {
       $inlineQueryMessageId = $data['callback_query']['inline_message_id'];
-      list($pollId, $status, $title) = getPoll('', '', $inlineQueryMessageId);
+      list($pollId, $status, $title, $pollText) = getPoll('', '', $inlineQueryMessageId);
       if($status === 1) {
         setAttendanceStatus($pollId, $senderUserId, $senderName, $confirm);
         updatePoll($pollId);
@@ -61,6 +61,11 @@ $attendees");
         answerCallbackQuery($queryId);
         editMessageText($chatId, $messageId, 'Willst du die Umfrage wirklich schließen?', $replyMarkup);
       }
+    }else if($method === 'update'){
+      $pollId = getPoll($senderUserId, $feedbackMessageId)['id'];
+      if(updatePollText($pollId)){
+      updatePoll($pollId);}
+      answerCallbackQuery($queryId, 'Text wurde aktualisiert.');
     }
   }
   die();
@@ -165,21 +170,45 @@ Um anzufangen, sende mir einfach den Titel deiner Registration, dann können wir
   }
 } else if (isset($text) && isset($repliedToMessageId)) {
   sendChatAction($chatId, 'typing');
-  list($pollId, $status, $title) = getPoll($senderUserId, $repliedToMessageId);
+  list($pollId, $status, $title, $pollText) = getPoll($senderUserId, $repliedToMessageId);
   if ($pollId === false) {
     sendMessage($chatId, 'Error oder nicht gefunden');
     die();
   }
-  setPollContent($senderUserId, $repliedToMessageId, $text);
-  $replyMarkup = array(
-    'inline_keyboard' => array(
-      array(
+  if(strlen($text) > 4000){
+    sendMessage($chatId, 'Leider darf der Text nicht länger als 4000 Zeichen sein.');
+    die();
+  }
+  if($pollText === NULL) {
+    setPollContent($senderUserId, $repliedToMessageId, $text);
+    $replyMarkup = array(
+      'inline_keyboard' => array(
         array(
-          'text' => 'Schließen',
-          'callback_data' => "close|$repliedToMessageId|0|" . time()
+          array(
+            'text' => 'Schließen',
+            'callback_data' => "close|$repliedToMessageId|0|" . time()
+          )
         )
       )
-    )
-  );
-  sendMessage($chatId, "Fertig. Du kannst die Umfrage nun mit <code>@stammtischanmeldung_bot $title</code> in Gruppen teilen.", '', json_encode($replyMarkup));
+    );
+    sendMessage($chatId, "Fertig. Du kannst die Umfrage nun mit <code>@stammtischanmeldung_bot $title</code> in Gruppen teilen.", '', json_encode($replyMarkup));
+  }
+  else if ($status === 1) {
+    setPollNewContent($senderUserId, $repliedToMessageId, $text);
+    $replyMarkup = array(
+      'inline_keyboard' => array(
+        array(
+          array(
+            'text' => 'Ja',
+            'callback_data' => "update|$repliedToMessageId|0|" . time()
+          ),
+          array('text' => 'Nein',
+            'callback_data' => 'no')
+        )
+      )
+    );
+    sendMessage($chatId, "$text
+
+Okay. Willst du den Umfragetext ändern?", '', json_encode($replyMarkup));
+  }
 }

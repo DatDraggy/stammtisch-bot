@@ -78,8 +78,8 @@ function getPoll($userId, $feedbackMessageId, $inlineQueryMessageId = '') {
 
   if (empty($inlineQueryMessageId)) {
     try {
-      $sql = "SELECT id, status, title FROM polls WHERE user_id = $userId AND feedback_message_id = $feedbackMessageId";
-      $stmt = $dbConnection->prepare('SELECT id, status, title FROM polls WHERE user_id = :userId AND feedback_message_id = :feedbackMessageId');
+      $sql = "SELECT id, status, title, text FROM polls WHERE user_id = $userId AND feedback_message_id = $feedbackMessageId";
+      $stmt = $dbConnection->prepare('SELECT id, status, title, text FROM polls WHERE user_id = :userId AND feedback_message_id = :feedbackMessageId');
       $stmt->bindParam(':userId', $userId);
       $stmt->bindParam(':feedbackMessageId', $feedbackMessageId);
       $stmt->execute();
@@ -92,12 +92,13 @@ function getPoll($userId, $feedbackMessageId, $inlineQueryMessageId = '') {
     return [
       false,
       false,
+      false,
       false
     ];
   } else {
     try {
-      $sql = "SELECT id, status, title FROM polls INNER JOIN messages m on polls.id = m.poll_id WHERE m.inline_message_id = $inlineQueryMessageId";
-      $stmt = $dbConnection->prepare('SELECT id, status, title FROM polls INNER JOIN messages m on polls.id = m.poll_id WHERE m.inline_message_id = :inlineQueryMessageId');
+      $sql = "SELECT id, status, title, text FROM polls INNER JOIN messages m on polls.id = m.poll_id WHERE m.inline_message_id = $inlineQueryMessageId";
+      $stmt = $dbConnection->prepare('SELECT id, status, title, text FROM polls INNER JOIN messages m on polls.id = m.poll_id WHERE m.inline_message_id = :inlineQueryMessageId');
       $stmt->bindParam(':inlineQueryMessageId', $inlineQueryMessageId);
       $stmt->execute();
       if ($stmt->rowCount() > 0) {
@@ -107,6 +108,7 @@ function getPoll($userId, $feedbackMessageId, $inlineQueryMessageId = '') {
       notifyOnException('Database Select', $config, $sql, $e);
     }
     return [
+      false,
       false,
       false,
       false
@@ -246,8 +248,25 @@ function setPollContent($userId, $feedbackMessageId, $text) {
   global $dbConnection, $config;
 
   try {
-    $sql = "UPDATE polls SET text = $text WHERE user_id = $userId AND feedback_message_id = $feedbackMessageId";
+    $sql = "UPDATE polls SET text = $text, status = 1 WHERE user_id = $userId AND feedback_message_id = $feedbackMessageId";
     $stmt = $dbConnection->prepare('UPDATE polls SET text = :text, status = 1 WHERE user_id = :userId AND feedback_message_id = :feedbackMessageId');
+    $stmt->bindParam(':text', $text);
+    $stmt->bindParam(':userId', $userId);
+    $stmt->bindParam(':feedbackMessageId', $feedbackMessageId);
+    $stmt->execute();
+    return true;
+  } catch (PDOException $e) {
+    notifyOnException('Database Select', $config, $sql, $e);
+  }
+  return false;
+}
+
+function setPollNewContent($userId, $feedbackMessageId, $text) {
+  global $dbConnection, $config;
+
+  try {
+    $sql = "UPDATE polls SET text_new = $text WHERE user_id = $userId AND feedback_message_id = $feedbackMessageId";
+    $stmt = $dbConnection->prepare('UPDATE polls SET text_new = :text WHERE user_id = :userId AND feedback_message_id = :feedbackMessageId');
     $stmt->bindParam(':text', $text);
     $stmt->bindParam(':userId', $userId);
     $stmt->bindParam(':feedbackMessageId', $feedbackMessageId);
@@ -377,6 +396,21 @@ function updatePoll($pollId, $close = false) {
 
     editMessageText('', '', $text, $replyMarkup, $row['inline_message_id']);
   }
+}
+
+function updatePollText($pollId){
+  global $dbConnection, $config;
+
+  try{
+    $sql = "UPDATE polls SET text = text_new WHERE id = $pollId AND text_new IS NOT NULL";
+    $stmt = $dbConnection->prepare('UPDATE polls SET text = text_new WHERE id = :pollId AND text_new IS NOT NULL');
+    $stmt->bindParam(':pollId', $pollId);
+    $stmt->execute();
+  }catch (PDOException $e) {
+    notifyOnException('Database Update', $config, $sql, $e);
+    return false;
+  }
+  return true;
 }
 
 function editMessageText($chatId, $messageId, $text, $replyMarkup = '', $inlineMessageId = '') {
