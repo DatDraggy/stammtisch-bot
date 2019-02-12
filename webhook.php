@@ -8,7 +8,7 @@ $dump = print_r($data, true);
 $dbConnection = buildDatabaseConnection($config);
 if (isset($data['callback_query'])) {
   $chatId = $data['callback_query']['message']['chat']['id'];
-  $messageId = $data['callback_query']['message']['message_idn'];
+  $messageId = $data['callback_query']['message']['message_id'];
   $chatType = $data['callback_query']['message']['chat']['type'];
   $callbackData = $data['callback_query']['data'];
   $senderUserId = $data['callback_query']['from']['id'];
@@ -191,7 +191,7 @@ Um anzufangen, sende mir einfach den Titel deiner Registration, dann können wir
         )
       )
     );
-    sendMessage($chatId, "Fertig. Du kannst die Umfrage nun mit <code>@stammtischanmeldung_bot $title</code> in Gruppen teilen.", '', json_encode($replyMarkup));
+    sendMessage($chatId, "Fertig. Du kannst die Umfrage nun mit <code>@gaestebuch_bot $title</code> in Gruppen teilen.", '', json_encode($replyMarkup));
   }
   else if ($status === 1) {
     setPollNewContent($senderUserId, $repliedToMessageId, $text);
