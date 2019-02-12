@@ -137,20 +137,21 @@ if (isset($data['message']['text'])) {
     $additionalOffset = 0;
     foreach ($data['message']['entities'] as $entity) {
       $offset = $entity['offset'] + $additionalOffset;
+      //<i> = 3 long. </i> 4 long. 3+4=7 additonal offset on every entity
       if ($entity['type'] === 'italic') {
         $text = substr_replace($text, '<i>', $offset, NULL);
         $text = substr_replace($text, '</i>', $offset + 3 + $entity['length'], NULL);
-        $additionalOffset += 6;
+        $additionalOffset += 7;
       }
       else if ($entity['type'] === 'bold') {
         $text = substr_replace($text, '<b>', $offset, NULL);
         $text = substr_replace($text, '</b>', $offset + 3 + $entity['length'], NULL);
-        $additionalOffset += 6;
+        $additionalOffset += 7;
       }
       else if ($entity['type'] === 'code') {
         $text = substr_replace($text, '<code>', $offset, NULL);
         $text = substr_replace($text, '</code>', $offset + 6 + $entity['length'], NULL);
-        $additionalOffset += 12;
+        $additionalOffset += 13;
       }
       //+ 3 and 6 because length of tags ads up
     }
