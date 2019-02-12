@@ -7,6 +7,7 @@ $dump = print_r($data, true);
 
 $dbConnection = buildDatabaseConnection($config);
 if (isset($data['callback_query'])) {
+  mail($config['mail'], 'Debug', $dump);
   $chatId = $data['callback_query']['message']['chat']['id'];
   $messageId = $data['callback_query']['message']['message_id'];
   $chatType = $data['callback_query']['message']['chat']['type'];
@@ -20,7 +21,9 @@ if (isset($data['callback_query'])) {
 
   if (stripos($callbackData, '|') !== false) {
     list($method, $feedbackMessageId, $confirm, $time) = explode('|', $callbackData);
-
+    if($method === 'no'){
+      answerCallbackQuery($queryId);
+    }
     if ($method === 'vote') {
       $inlineQueryMessageId = $data['callback_query']['inline_message_id'];
       list($pollId, $status, $title, $pollText) = getPoll('', '', $inlineQueryMessageId);
