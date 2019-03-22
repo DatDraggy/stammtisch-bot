@@ -46,14 +46,17 @@ if (isset($data['callback_query'])) {
       }
       answerCallbackQuery($queryId);
     } else if ($method === 'close') {
-      $pollId = getPoll($senderUserId, $feedbackMessageId)['id'];
+      $poll = getPoll($senderUserId, $feedbackMessageId);
+      $pollId = $poll['id'];
+      $pollText = $poll['text'];
       if ($confirm == 1 && $time + 10 >= time()) {
         if (closePoll($pollId)) {
           answerCallbackQuery($queryId);
           updatePoll($pollId, true);
           list($attendeesYes, $attendeesMaybe, $attendeesNo) = getPollAttendees($pollId);
           $attendees = buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
-          editMessageText($chatId, $messageId, "Umfrage geschlossen. 
+          editMessageText($chatId, $messageId, $pollText . "
+<b>Umfrage geschlossen.</b>
 $attendees");
         } else {
           answerCallbackQuery($queryId, 'Fehler');
