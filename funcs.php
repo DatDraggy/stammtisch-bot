@@ -200,13 +200,13 @@ function buildPollAttendees($pollId, $yes, $maybe, $no) {
   try {
     //$sql = "SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = $userId GROUP BY attendees.poll_id";
     //$stmt = $dbConnection->prepare('SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = :userId GROUP BY attendees.poll_id');
-    $sql = "SELECT nickname FROM attendees WHERE poll_id = $pollId AND status = 1 ORDER BY time ASC";
-    $stmt = $dbConnection->prepare('SELECT nickname FROM attendees WHERE poll_id = :pollId AND status = 1 ORDER BY time ASC');
+    $sql = "SELECT user_id, nickname FROM attendees WHERE poll_id = $pollId AND status = 1 ORDER BY time ASC";
+    $stmt = $dbConnection->prepare('SELECT user_id, nickname FROM attendees WHERE poll_id = :pollId AND status = 1 ORDER BY time ASC');
     $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
     $rows = $stmt->fetchAll();
     foreach ($rows as $row) {
-      $return .= $row['nickname'] . '
+      $return .= '<a href="tg://user?id=' . $row['user_id'] . '">' . $row['nickname'] . '</a>
 ';
     }
 
@@ -214,13 +214,13 @@ function buildPollAttendees($pollId, $yes, $maybe, $no) {
 <b>Vielleicht - [$maybe]</b>
 ";
 
-    $sql = "SELECT nickname FROM attendees WHERE poll_id = $pollId AND status = 2 ORDER BY time ASC";
-    $stmt = $dbConnection->prepare('SELECT nickname FROM attendees WHERE poll_id = :pollId AND status = 2 ORDER BY time ASC');
+    $sql = "SELECT user_id, nickname FROM attendees WHERE poll_id = $pollId AND status = 2 ORDER BY time ASC";
+    $stmt = $dbConnection->prepare('SELECT user_id, nickname FROM attendees WHERE poll_id = :pollId AND status = 2 ORDER BY time ASC');
     $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
     $rows = $stmt->fetchAll();
     foreach ($rows as $row) {
-      $return .= $row['nickname'] . '
+      $return .= '<a href="tg://user?id=' . $row['user_id'] . '">' . $row['nickname'] . '</a>
 ';
     }
 
@@ -228,13 +228,13 @@ function buildPollAttendees($pollId, $yes, $maybe, $no) {
 <b>Abmeldung - [$no]</b>
 ";
 
-    $sql = "SELECT nickname FROM attendees WHERE poll_id = $pollId AND status = 3 ORDER BY time ASC";
-    $stmt = $dbConnection->prepare('SELECT nickname FROM attendees WHERE poll_id = :pollId AND status = 3 ORDER BY time ASC');
+    $sql = "SELECT user_id, nickname FROM attendees WHERE poll_id = $pollId AND status = 3 ORDER BY time ASC";
+    $stmt = $dbConnection->prepare('SELECT user_id, nickname FROM attendees WHERE poll_id = :pollId AND status = 3 ORDER BY time ASC');
     $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
     $rows = $stmt->fetchAll();
     foreach ($rows as $row) {
-      $return .= $row['nickname'] . '
+      $return .= '<a href="tg://user?id=' . $row['user_id'] . '">' . $row['nickname'] . '</a>
 ';
     }
     return $return;
