@@ -146,7 +146,9 @@ $attendees");
   newPollPost($inlineQueryMessageId, $pollId);
   die();
 }
-
+function mb_substr_replace($output, $replace, $posOpen, $posClose) {
+  return mb_substr($output, 0, $posOpen).$replace.mb_substr($output, $posClose+1);
+}
 $chatId = $data['message']['chat']['id'];
 $chatType = $data['message']['chat']['type'];
 $senderUserId = $data['message']['from']['id'];
@@ -158,18 +160,18 @@ if (isset($data['message']['text'])) {
       $offset = $entity['offset'] + $additionalOffset;
       //<i> = 3 long. </i> 4 long. 3+4=7 additonal offset on every entity
       if ($entity['type'] === 'italic') {
-        $text = substr_replace($text, '<i>', $offset, NULL);
-        $text = substr_replace($text, '</i>', $offset + 3 + $entity['length'], NULL);
+        $text = mb_substr_replace($text, '<i>', $offset, NULL);
+        $text = mb_substr_replace($text, '</i>', $offset + 3 + $entity['length'], NULL);
         $additionalOffset += 7;
       }
       else if ($entity['type'] === 'bold') {
-        $text = substr_replace($text, '<b>', $offset, NULL);
-        $text = substr_replace($text, '</b>', $offset + 3 + $entity['length'], NULL);
+        $text = mb_substr_replace($text, '<b>', $offset, NULL);
+        $text = mb_substr_replace($text, '</b>', $offset + 3 + $entity['length'], NULL);
         $additionalOffset += 7;
       }
       else if ($entity['type'] === 'code') {
-        $text = substr_replace($text, '<code>', $offset, NULL);
-        $text = substr_replace($text, '</code>', $offset + 6 + $entity['length'], NULL);
+        $text = mb_substr_replace($text, '<code>', $offset, NULL);
+        $text = mb_substr_replace($text, '</code>', $offset + 6 + $entity['length'], NULL);
         $additionalOffset += 13;
       }
       //+ 3 and 6 because length of tags ads up
