@@ -4,6 +4,7 @@ require_once(__DIR__ . "/config.php");
 $response = file_get_contents('php://input');
 $data = json_decode($response, true);
 $dump = print_r($data, true);
+mail($config['mail'], 'Entity Debug', $dump);
 if(file_exists($config['timeoutsave'])){
   $timeouts = json_decode(file_get_contents($config['timeoutsave']),true);
 }
