@@ -237,7 +237,7 @@ Um anzufangen, sende mir einfach den Titel deiner Registration, dann können wir
         )
       )
     );
-    sendMessage($chatId, "Fertig. Du kannst die Umfrage nun mit @gaestebuch_bot $title in Gruppen teilen.", '', json_encode($replyMarkup));
+    sendMessage($chatId, "Fertig. Du kannst die Umfrage nun mit '@gaestebuch_bot $title' in Gruppen teilen.", '', json_encode($replyMarkup));
   }
   else if ($status === 1) {
     setPollNewContent($senderUserId, $repliedToMessageId, $text);
