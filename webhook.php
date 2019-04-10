@@ -123,12 +123,19 @@ $attendees");
         )
       )
     );
+    $messageText = $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
+    if(strlen($messageText) > 4000){
+      $messageText = $pollTitle . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
+      if(strlen($messageText) > 4000){
+        $messageText = $pollText;
+      }
+    }
     $results[] = array(
       'type' => 'article',
       'id' => $pollId,
       'title' => $pollTitle,
       'input_message_content' => array(
-        'message_text' => $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo),
+        'message_text' => $messageText,
         'parse_mode' => 'html',
         'disable_web_page_preview' => true
       ),
@@ -208,7 +215,8 @@ Um dies nachträglich zu ändern, antworte einfach auf diese Nachricht.", '', js
     case '/start':
       sendMessage($chatId, 'Hallo!
 Ich bin der Stammtisch Bot. Durch mich kannst du Registrationen für Meetups oder Stammtische erstellen.
-Um anzufangen, sende mir einfach den Titel deiner Registration, dann können wir los legen.');
+Um anzufangen, sende mir einfach den Titel deiner Registration, dann können wir los legen.
+Vergiss aber nicht, dass Nachrichten nicht länger als 4000 Zeichen lang sein dürfen.');
       break;
     case '/test':
       mail($config['mail'], 'Dump', $dump);
