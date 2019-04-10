@@ -23,7 +23,6 @@ function notifyOnException($subject, $config, $sql = '', $e = '') {
 }
 
 function sendMessage($chatId, $text, $replyTo = '', $replyMarkup = '') {
-  global $config;
   $data = array(
     'disable_web_page_preview' => true,
     'parse_mode' => 'html',
@@ -33,23 +32,14 @@ function sendMessage($chatId, $text, $replyTo = '', $replyMarkup = '') {
     'reply_markup' => $replyMarkup
   );
   return makeApiRequest('sendMessage', $data);
-
-  $response = file_get_contents($config['url'] . "sendMessage?disable_web_page_preview=true&parse_mode=html&chat_id=$chatId&text=" . urlencode($text) . "&reply_to_message_id=$replyTo&reply_markup=$replyMarkup");
-  //Might use http_build_query in the future
-  return json_decode($response, true)['result'];
 }
 
 function answerCallbackQuery($queryId, $text = '') {
-  global $config;
   $data = array(
     'callback_query_id' => $queryId,
     'text' => $text
   );
   return makeApiRequest('answerCallbackQuery', $data);
-
-  $response = file_get_contents($config['url'] . "answerCallbackQuery?callback_query_id=$queryId&text=" . urlencode($text));
-  //Might use http_build_query in the future
-  return json_decode($response, true)['result'];
 }
 
 function makeApiRequest($method, $data){
@@ -81,15 +71,10 @@ function sendChatAction($chatId, $action) {
     "upload_video_note"
   );
   if (in_array($action, $actionList)) {
-    global $config;
     $data = array(
       'chat_id' => $chatId,'action'=>$action
     );
     return makeApiRequest('sendChatAction', $data);
-
-    $response = file_get_contents($config['url'] . "sendChatAction?chat_id=$chatId&action=$action");
-    /*$user = json_decode($response, true)['result']['user'];
-    return $user;*/
   }
 }
 
@@ -153,26 +138,12 @@ function getPoll($userId, $feedbackMessageId, $inlineQueryMessageId = '') {
 }
 
 function answerInlineQuery($inlineQueryId, $results) {
-  global $config;
-  //$response = file_get_contents($config['url'] . "answerInlineQuery?inline_query_id=$inlineQueryId&results=$results&is_personal=true");
-  $url = $config['url'] . "answerInlineQuery";
-
   $data = array(
     'inline_query_id' => $inlineQueryId,
     'results' => $results,
     'is_personal' => true
   );
   return makeApiRequest('answerInlineQuery', $data);
-  // use key 'http' even if you send the request to https://...
-  $options = array(
-    'http' => array(
-      'header' => "Content-type: application/json\r\n",
-      'method' => 'POST',
-      'content' => json_encode($data)
-    )
-  );
-  $context = stream_context_create($options);
-  $result = file_get_contents($url, false, $context);
 }
 
 function getAllPolls($userId, $search = '') {
@@ -461,10 +432,6 @@ function updatePollText($pollId){
 }
 
 function editMessageText($chatId, $messageId, $text, $replyMarkup = '', $inlineMessageId = '') {
-  global $config;
-
-  $url = $config['url'] . "editMessageText";
-
   if (empty($inlineMessageId)) {
     $data = array(
       'chat_id' => $chatId,
@@ -484,16 +451,6 @@ function editMessageText($chatId, $messageId, $text, $replyMarkup = '', $inlineM
     );
   }
   return makeApiRequest('editMessageText', $data);
-
-  $options = array(
-    'http' => array(
-      'header' => "Content-type: application/json\r\n",
-      'method' => 'POST',
-      'content' => json_encode($data)
-    )
-  );
-  $context = stream_context_create($options);
-  $result = file_get_contents($url, false, $context);
 }
 
 function checkLastExecute($timeouts, $command, $type, $id) {
