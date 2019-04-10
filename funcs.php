@@ -28,7 +28,7 @@ function sendMessage($chatId, $text, $replyTo = '', $replyMarkup = '') {
     'disable_web_page_preview' => true,
     'parse_mode' => 'html',
     'chat_id' => $chatId,
-    'text' => urlencode($text),
+    'text' => $text,
     'reply_to_message_id' => $replyTo,
     'reply_markup' => $replyMarkup
   );
@@ -43,7 +43,7 @@ function answerCallbackQuery($queryId, $text = '') {
   global $config;
   $data = array(
     'callback_query_id' => $queryId,
-    'text' => urlencode($text)
+    'text' => $text
   );
   return makeApiRequest('answerCallbackQuery', $data);
 
