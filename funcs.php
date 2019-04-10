@@ -329,8 +329,8 @@ function closePoll($pollId) {
   global $dbConnection, $config;
 
   try {
-    $sql = "UPDATE polls SET status = 0 WHERE id = $pollId";
-    $stmt = $dbConnection->prepare('UPDATE polls SET status = 0 WHERE id = :pollId');
+    $sql = "UPDATE polls SET status = 2 WHERE id = $pollId";
+    $stmt = $dbConnection->prepare('UPDATE polls SET status = 2 WHERE id = :pollId');
     $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
     return true;
@@ -389,8 +389,8 @@ function updatePoll($pollId, $close = false) {
   global $dbConnection, $config;
 
   try {
-    $sql = "SELECT inline_message_id, text FROM messages INNER JOIN polls p on messages.poll_id = p.id WHERE poll_id = $pollId";
-    $stmt = $dbConnection->prepare('SELECT inline_message_id, text FROM messages INNER JOIN polls p on messages.poll_id = p.id WHERE poll_id = :pollId');
+    $sql = "SELECT inline_message_id, text, title FROM messages INNER JOIN polls p on messages.poll_id = p.id WHERE poll_id = $pollId";
+    $stmt = $dbConnection->prepare('SELECT inline_message_id, text, title FROM messages INNER JOIN polls p on messages.poll_id = p.id WHERE poll_id = :pollId');
     $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
     $rows = $stmt->fetchAll();
@@ -399,8 +399,15 @@ function updatePoll($pollId, $close = false) {
   }
   foreach ($rows as $row) {
     $pollText = $row['text'];
+    $pollTitle = $row['title'];
     list($attendeesYes, $attendeesMaybe, $attendeesNo) = getPollAttendees($pollId);
     $text = $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
+    if(strlen($text) > 4000){
+      $text = $pollTitle . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
+      if(strlen($text) > 4000){
+        $text = $pollText;
+      }
+    }
     if (!$close) {
       $replyMarkup = array(
         'inline_keyboard' => array(
