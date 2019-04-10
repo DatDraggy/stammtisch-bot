@@ -82,6 +82,11 @@ function sendChatAction($chatId, $action) {
   );
   if (in_array($action, $actionList)) {
     global $config;
+    $data = array(
+      'chat_id' => $chatId,'action'=>$action
+    );
+    return makeApiRequest('sendChatAction', $data);
+
     $response = file_get_contents($config['url'] . "sendChatAction?chat_id=$chatId&action=$action");
     /*$user = json_decode($response, true)['result']['user'];
     return $user;*/
@@ -157,6 +162,7 @@ function answerInlineQuery($inlineQueryId, $results) {
     'results' => $results,
     'is_personal' => true
   );
+  return makeApiRequest('answerInlineQuery', $data);
   // use key 'http' even if you send the request to https://...
   $options = array(
     'http' => array(
@@ -477,6 +483,8 @@ function editMessageText($chatId, $messageId, $text, $replyMarkup = '', $inlineM
       'reply_markup' => $replyMarkup
     );
   }
+  return makeApiRequest('editMessageText', $data);
+
   $options = array(
     'http' => array(
       'header' => "Content-type: application/json\r\n",
