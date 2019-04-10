@@ -24,6 +24,16 @@ function notifyOnException($subject, $config, $sql = '', $e = '') {
 
 function sendMessage($chatId, $text, $replyTo = '', $replyMarkup = '') {
   global $config;
+  $data = array(
+    'disable_web_page_preview' => true,
+    'parse_mode' => 'html',
+    'chat_id' => $chatId,
+    'text' => urlencode($text),
+    'reply_to_message_id' => $replyTo,
+    'reply_markup' => $replyMarkup
+  );
+  return makeApiRequest('sendMessage', $data);
+
   $response = file_get_contents($config['url'] . "sendMessage?disable_web_page_preview=true&parse_mode=html&chat_id=$chatId&text=" . urlencode($text) . "&reply_to_message_id=$replyTo&reply_markup=$replyMarkup");
   //Might use http_build_query in the future
   return json_decode($response, true)['result'];
@@ -31,9 +41,30 @@ function sendMessage($chatId, $text, $replyTo = '', $replyMarkup = '') {
 
 function answerCallbackQuery($queryId, $text = '') {
   global $config;
+  $data = array(
+    'callback_query_id' => $queryId,
+    'text' => urlencode($text)
+  );
+  return makeApiRequest('answerCallbackQuery', $data);
+
   $response = file_get_contents($config['url'] . "answerCallbackQuery?callback_query_id=$queryId&text=" . urlencode($text));
   //Might use http_build_query in the future
   return json_decode($response, true)['result'];
+}
+
+function makeApiRequest($method, $data){
+  global $config;
+  $url = $config['url'] . $method;
+
+  $options = array(
+    'http' => array(
+      'header' => "Content-type: application/json\r\n",
+      'method' => 'POST',
+      'content' => json_encode($data)
+    )
+  );
+  $context = stream_context_create($options);
+  return json_decode(file_get_contents($url, false, $context), true)['result'];
 }
 
 function sendChatAction($chatId, $action) {
