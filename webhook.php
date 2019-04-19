@@ -226,7 +226,9 @@ Ich bin der Gästebuch Bot.
 Durch mich kannst du ein Gästebuch für Meetups oder Stammtische erstellen!
 
 <b>Um anzufangen, sende mir einfach den Titel deines Gästebuchs, dann können wir los legen.</b>
-Vergiss aber nicht, dass Nachrichten nicht länger als <i>4000 Zeichen</i> lang sein dürfen.');
+Vergiss aber nicht, dass Nachrichten nicht länger als <i>4000 Zeichen</i> lang sein dürfen.
+
+Falls du etwas nicht verstehst, hier ist eine demonstration des Bots: ');
       break;
     case '/test':
       mail($config['mail'], 'Dump', $dump);
@@ -255,7 +257,7 @@ Vergiss aber nicht, dass Nachrichten nicht länger als <i>4000 Zeichen</i> lang 
         )
       )
     );
-    sendMessage($chatId, "Fertig. Du kannst die Umfrage nun mit '@gaestebuch_bot $title' in Gruppen teilen.", '', json_encode($replyMarkup));
+    sendMessage($chatId, "Fertig. Du kannst die Umfrage nun, in dem du '@gaestebuch_bot $title' in deine Textzeile schreibst, in Gruppen teilen.", '', json_encode($replyMarkup));
   }
   else if ($status === 1) {
     setPollNewContent($senderUserId, $repliedToMessageId, $text);
