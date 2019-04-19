@@ -54,7 +54,11 @@ function makeApiRequest($method, $data){
     )
   );
   $context = stream_context_create($options);
-  return json_decode(file_get_contents($url, false, $context), true)['result'];
+  $return = json_decode(file_get_contents($url, false, $context), true);
+  if ($return['ok'] != 1){
+    mail($config['mail'], 'Error', print_r($return, true) . "\n" . print_r($options, true) . "\n" . __FILE__);
+  }
+  return $return['result'];
 }
 
 function sendChatAction($chatId, $action) {
@@ -146,14 +150,14 @@ function answerInlineQuery($inlineQueryId, $results) {
   return makeApiRequest('answerInlineQuery', $data);
 }
 
-function getAllPolls($userId, $search = '') {
+function getAllPolls($userId, $search = '', $offset = 0) {
   global $dbConnection, $config;
   if (empty($search)) {
     try {
       //$sql = "SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = $userId GROUP BY attendees.poll_id";
       //$stmt = $dbConnection->prepare('SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = :userId GROUP BY attendees.poll_id');
-      $sql = "SELECT id, title, text FROM polls WHERE user_id = $userId AND status = 1";
-      $stmt = $dbConnection->prepare('SELECT id, title, text FROM polls WHERE user_id = :userId AND status = 1 ORDER BY id DESC LIMIT 50');
+      $sql = "SELECT id, title, text FROM polls WHERE user_id = $userId AND status = 1 ORDER BY id DESC LIMIT $offset, 50";
+      $stmt = $dbConnection->prepare('SELECT id, title, text FROM polls WHERE user_id = :userId AND status = 1 ORDER BY id DESC LIMIT ' . $offset . ', 50');
       $stmt->bindParam(':userId', $userId);
       $stmt->execute();
       return $stmt->fetchAll();
@@ -166,8 +170,8 @@ function getAllPolls($userId, $search = '') {
     try {
       //$sql = "SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = $userId GROUP BY attendees.poll_id";
       //$stmt = $dbConnection->prepare('SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = :userId GROUP BY attendees.poll_id');
-      $sql = "SELECT id, title, text FROM polls WHERE user_id = $userId AND status = 1 AND title LIKE '$search'";
-      $stmt = $dbConnection->prepare('SELECT id, title, text FROM polls WHERE user_id = :userId AND status = 1 AND title LIKE :search ORDER BY id DESC LIMIT 50');
+      $sql = "SELECT id, title, text FROM polls WHERE user_id = $userId AND status = 1 AND title LIKE $search ORDER BY id DESC LIMIT $offset, 50";
+      $stmt = $dbConnection->prepare('SELECT id, title, text FROM polls WHERE user_id = :userId AND status = 1 AND title LIKE :search ORDER BY id DESC LIMIT ' . $offset . ', 50');
       $stmt->bindParam(':userId', $userId);
       $stmt->bindParam(':search', $search);
       $stmt->execute();
