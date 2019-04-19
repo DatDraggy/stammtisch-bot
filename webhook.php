@@ -222,7 +222,7 @@ Um dies nachträglich zu ändern, antworte einfach auf diese Nachricht.", '', js
     case '/start':
       sendMessage($chatId, '<b>Hallo!</b>
 
-Ich bin der Stammtisch Bot. 
+Ich bin der Gästebuch Bot. 
 Durch mich kannst du ein Gästebuch für Meetups oder Stammtische erstellen!
 
 <b>Um anzufangen, sende mir einfach den Titel deines Gästebuchs, dann können wir los legen.</b>
