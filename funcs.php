@@ -141,11 +141,12 @@ function getPoll($userId, $feedbackMessageId, $inlineQueryMessageId = '') {
   }
 }
 
-function answerInlineQuery($inlineQueryId, $results) {
+function answerInlineQuery($inlineQueryId, $results, $offset) {
   $data = array(
     'inline_query_id' => $inlineQueryId,
     'results' => $results,
-    'is_personal' => true
+    'is_personal' => true,
+    'next_offset' => $offset + 50
   );
   return makeApiRequest('answerInlineQuery', $data);
 }

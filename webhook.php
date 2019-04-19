@@ -151,7 +151,7 @@ $attendees");
     );
     //ToDo: Use Post not GET
   }
-  answerInlineQuery($inlineQueryId, $results);
+  answerInlineQuery($inlineQueryId, $results, $offset);
   die();
 } else if (isset($data['chosen_inline_result'])) {
   $inlineQueryMessageId = $data['chosen_inline_result']['inline_message_id'];
