@@ -92,10 +92,17 @@ $attendees");
   $inlineQueryId = $data['inline_query']['id'];
   $senderUserId = $data['inline_query']['from']['id'];
   $search = $data['inline_query']['query'];
+  $newOffset = $data['inline_query']['offset'];
+
+  if ($newOffset === '' || $newOffset === 0) {
+    $offset = 0;
+  } else {
+    $offset = $newOffset;
+  }
 
   $results = array();
-  //Return all polls from $senderUserId
-  $polls = getAllPolls($senderUserId, $search);
+
+  $polls = getAllPolls($senderUserId, $search, $offset);
   foreach ($polls as $poll) {
     $pollId = $poll['id'];
     $pollTitle = $poll['title'];
