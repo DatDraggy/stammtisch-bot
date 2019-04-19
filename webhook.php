@@ -220,10 +220,13 @@ Um dies nachträglich zu ändern, antworte einfach auf diese Nachricht.", '', js
 
   switch ($command) {
     case '/start':
-      sendMessage($chatId, 'Hallo!
-Ich bin der Stammtisch Bot. Durch mich kannst du Registrationen für Meetups oder Stammtische erstellen.
-Um anzufangen, sende mir einfach den Titel deiner Registration, dann können wir los legen.
-Vergiss aber nicht, dass Nachrichten nicht länger als 4000 Zeichen lang sein dürfen.');
+      sendMessage($chatId, '<b>Hallo!</b>
+
+Ich bin der Stammtisch Bot. 
+Durch mich kannst du ein Gästebuch für Meetups oder Stammtische erstellen!
+
+<b>Um anzufangen, sende mir einfach den Titel deines Gästebuchs, dann können wir los legen.</b>
+Vergiss aber nicht, dass Nachrichten nicht länger als <i>4000 Zeichen</i> lang sein dürfen.');
       break;
     case '/test':
       mail($config['mail'], 'Dump', $dump);
