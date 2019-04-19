@@ -226,7 +226,9 @@ Ich bin der Gästebuch Bot.
 Durch mich kannst du ein Gästebuch für Meetups oder Stammtische erstellen!
 
 <b>Um anzufangen, sende mir einfach den Titel deines Gästebuchs, dann können wir los legen.</b>
-Vergiss aber nicht, dass Nachrichten nicht länger als <i>4000 Zeichen</i> lang sein dürfen.');
+Vergiss aber nicht, dass Nachrichten nicht länger als <i>4000 Zeichen</i> lang sein dürfen.
+
+Falls du etwas nicht verstehst, hier ist eine demonstration des Bots: https://img.kieran.de/mO2zvp1.mp4');
       break;
     case '/test':
       mail($config['mail'], 'Dump', $dump);
