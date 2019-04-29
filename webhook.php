@@ -92,10 +92,17 @@ $attendees");
   $inlineQueryId = $data['inline_query']['id'];
   $senderUserId = $data['inline_query']['from']['id'];
   $search = $data['inline_query']['query'];
+  $newOffset = $data['inline_query']['offset'];
+
+  if ($newOffset === '' || $newOffset === 0) {
+    $offset = 0;
+  } else {
+    $offset = $newOffset;
+  }
 
   $results = array();
-  //Return all polls from $senderUserId
-  $polls = getAllPolls($senderUserId, $search);
+
+  $polls = getAllPolls($senderUserId, $search, $offset);
   foreach ($polls as $poll) {
     $pollId = $poll['id'];
     $pollTitle = $poll['title'];
@@ -144,7 +151,7 @@ $attendees");
     );
     //ToDo: Use Post not GET
   }
-  answerInlineQuery($inlineQueryId, $results);
+  answerInlineQuery($inlineQueryId, $results, $offset);
   die();
 } else if (isset($data['chosen_inline_result'])) {
   $inlineQueryMessageId = $data['chosen_inline_result']['inline_message_id'];
@@ -213,10 +220,15 @@ Um dies nachträglich zu ändern, antworte einfach auf diese Nachricht.", '', js
 
   switch ($command) {
     case '/start':
-      sendMessage($chatId, 'Hallo!
-Ich bin der Stammtisch Bot. Durch mich kannst du Registrationen für Meetups oder Stammtische erstellen.
-Um anzufangen, sende mir einfach den Titel deiner Registration, dann können wir los legen.
-Vergiss aber nicht, dass Nachrichten nicht länger als 4000 Zeichen lang sein dürfen.');
+      sendMessage($chatId, '<b>Hallo!</b>
+
+Ich bin der Gästebuch Bot. 
+Durch mich kannst du ein Gästebuch für Meetups oder Stammtische erstellen!
+
+<b>Um anzufangen, sende mir einfach den Titel deines Gästebuchs, dann können wir los legen.</b>
+Vergiss aber nicht, dass Nachrichten nicht länger als <i>4000 Zeichen</i> lang sein dürfen.
+
+Falls du etwas nicht verstehst, kannst du hier eine Demonstration des Bots sehen: https://img.kieran.de/mO2zvp1.mp4');
       break;
     case '/test':
       mail($config['mail'], 'Dump', $dump);
@@ -245,7 +257,7 @@ Vergiss aber nicht, dass Nachrichten nicht länger als 4000 Zeichen lang sein d�
         )
       )
     );
-    sendMessage($chatId, "Fertig. Du kannst die Umfrage nun mit '@gaestebuch_bot $title' in Gruppen teilen.", '', json_encode($replyMarkup));
+    sendMessage($chatId, "Fertig. Du kannst die Umfrage nun, in dem du '@gaestebuch_bot $title' in deine Textzeile schreibst, in Gruppen teilen.", '', json_encode($replyMarkup));
   }
   else if ($status === 1) {
     setPollNewContent($senderUserId, $repliedToMessageId, $text);
