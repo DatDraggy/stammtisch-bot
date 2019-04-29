@@ -124,9 +124,9 @@ $attendees");
       )
     );
     $messageText = $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
-    if(strlen($messageText) > 4000){
+    if(mb_strlen($messageText) > 4000){
       $messageText = $pollTitle . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
-      if(strlen($messageText) > 4000){
+      if(mb_strlen($messageText) > 4000){
         $messageText = $pollText;
       }
     }
@@ -229,7 +229,7 @@ Vergiss aber nicht, dass Nachrichten nicht länger als 4000 Zeichen lang sein d�
     sendMessage($chatId, 'Error oder nicht gefunden');
     die();
   }
-  if(strlen($text) > 4000){
+  if(mb_strlen($text) > 4000){
     sendMessage($chatId, 'Leider darf der Text nicht länger als 4000 Zeichen sein.');
     die();
   }

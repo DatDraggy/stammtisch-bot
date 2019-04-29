@@ -379,9 +379,9 @@ function updatePoll($pollId, $close = false) {
     $pollTitle = $row['title'];
     list($attendeesYes, $attendeesMaybe, $attendeesNo) = getPollAttendees($pollId);
     $text = $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
-    if(strlen($text) > 4000){
+    if(mb_strlen($text) > 4000){
       $text = $pollTitle . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
-      if(strlen($text) > 4000){
+      if(mb_strlen($text) > 4000){
         $text = $pollText;
       }
     }
