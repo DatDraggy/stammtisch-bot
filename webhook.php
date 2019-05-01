@@ -131,9 +131,9 @@ if (isset($data['callback_query'])) {
       )
     );
     $messageText = $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
-    if(strlen($messageText) > 4000){
+    if(mb_strlen($messageText) > 4000){
       $messageText = $pollTitle . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
-      if(strlen($messageText) > 4000){
+      if(mb_strlen($messageText) > 4000){
         $messageText = $pollText;
       }
     }
@@ -241,7 +241,7 @@ Falls du etwas nicht verstehst, kannst du hier eine Demonstration des Bots sehen
     sendMessage($chatId, 'Error oder nicht gefunden');
     die();
   }
-  if(strlen($text) > 4000){
+  if(mb_strlen($text) > 4000){
     sendMessage($chatId, 'Leider darf der Text nicht länger als 4000 Zeichen sein.');
     die();
   }
