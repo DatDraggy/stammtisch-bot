@@ -390,6 +390,7 @@ function updatePoll($pollId, $close = false) {
     $pollTitle = $row['title'];
     list($attendeesYes, $attendeesMaybe, $attendeesNo) = getPollAttendees($pollId);
     $text = $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
+    mail($config['mail'], 'Debug', mb_strlen($text) . "\n" . $text);
     if(mb_strlen($text) > 4000){
       $text = $pollTitle . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
       if(mb_strlen($text) > 4000){
