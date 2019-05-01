@@ -209,7 +209,7 @@ function getPollAttendees($pollId) {
   return false;
 }
 
-function buildPollAttendees($pollId, $yes, $maybe, $no) {
+function buildPollAttendees($pollId, $yes, $maybe, $no, $link = false) {
   global $dbConnection, $config;
   $return = "
 
@@ -224,9 +224,16 @@ function buildPollAttendees($pollId, $yes, $maybe, $no) {
     $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
     $rows = $stmt->fetchAll();
-    foreach ($rows as $row) {
-      $return .= '<a href="tg://user?id=' . $row['user_id'] . '">' . $row['nickname'] . '</a>
+    if ($link) {
+      foreach ($rows as $row) {
+        $return .= '<a href="tg://user?id=' . $row['user_id'] . '">' . $row['nickname'] . '</a>
 ';
+      }
+    } else {
+      foreach ($rows as $row) {
+        $return .= $row['nickname'] . '
+';
+      }
     }
 
     $return .= "
@@ -238,9 +245,16 @@ function buildPollAttendees($pollId, $yes, $maybe, $no) {
     $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
     $rows = $stmt->fetchAll();
-    foreach ($rows as $row) {
-      $return .= '<a href="tg://user?id=' . $row['user_id'] . '">' . $row['nickname'] . '</a>
+    if ($link) {
+      foreach ($rows as $row) {
+        $return .= '<a href="tg://user?id=' . $row['user_id'] . '">' . $row['nickname'] . '</a>
 ';
+      }
+    } else {
+      foreach ($rows as $row) {
+        $return .= $row['nickname'] . '
+';
+      }
     }
 
     $return .= "
@@ -252,9 +266,16 @@ function buildPollAttendees($pollId, $yes, $maybe, $no) {
     $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
     $rows = $stmt->fetchAll();
-    foreach ($rows as $row) {
-      $return .= '<a href="tg://user?id=' . $row['user_id'] . '">' . $row['nickname'] . '</a>
+    if ($link) {
+      foreach ($rows as $row) {
+        $return .= '<a href="tg://user?id=' . $row['user_id'] . '">' . $row['nickname'] . '</a>
 ';
+      }
+    } else {
+      foreach ($rows as $row) {
+        $return .= $row['nickname'] . '
+';
+      }
     }
     return $return;
   } catch (PDOException $e) {
