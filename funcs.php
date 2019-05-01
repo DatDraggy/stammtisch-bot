@@ -23,6 +23,11 @@ function notifyOnException($subject, $config, $sql = '', $e = '') {
 }
 
 function sendMessage($chatId, $text, $replyTo = '', $replyMarkup = '') {
+  if (strlen($text) > 4096){
+    sendMessage($chatId, substr($text, 0, 4096), $replyTo, $replyMarkup);
+    return sendMessage($chatId, substr($text, 4096), $replyTo, $replyMarkup);
+  }
+  else {
   $data = array(
     'disable_web_page_preview' => true,
     'parse_mode' => 'html',
@@ -32,6 +37,7 @@ function sendMessage($chatId, $text, $replyTo = '', $replyMarkup = '') {
     'reply_markup' => $replyMarkup
   );
   return makeApiRequest('sendMessage', $data);
+  }
 }
 
 function answerCallbackQuery($queryId, $text = '') {
