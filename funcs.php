@@ -409,12 +409,16 @@ function updatePoll($pollId, $close = false) {
   foreach ($rows as $row) {
     $pollText = $row['text'];
     $pollTitle = $row['title'];
+    $pollInlineMessageId = $row['inline_message_id'];
     list($attendeesYes, $attendeesMaybe, $attendeesNo) = getPollAttendees($pollId);
-    $text = $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
+    $text = $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo, true);
     if(mb_strlen($text) > 4000){
-      $text = $pollTitle . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
+      $text = "<a href=\"https://t.me/gaestebuch_bot?start=$pollInlineMessageId\">$pollTitle</a>" . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo, true);
       if(mb_strlen($text) > 4000){
-        $text = $pollText;
+        $text = "<a href=\"https://t.me/gaestebuch_bot?start=$pollInlineMessageId\">$pollTitle</a>" . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
+        if(mb_strlen($text) > 4000){
+          $text = $pollText;
+        }
       }
     }
     if (!$close) {

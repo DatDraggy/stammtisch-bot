@@ -202,7 +202,9 @@ if (isset($text) && !isset($repliedToMessageId)) {
     $messageArr = explode(' ', $text);
     $command = explode('@', $messageArr[0])[0];
     if ($messageArr[0] == '/start' && isset($messageArr[1])) {
-      $command = '/' . $messageArr[1];
+      list($pollId, $status, $title, $pollText) = getPoll('','',$messageArr[1]);
+      sendMessage($chatId, $pollText);
+      die();
     }
   } else {
     sendChatAction($chatId, 'typing');
@@ -220,6 +222,7 @@ Um dies nachträglich zu ändern, antworte einfach auf diese Nachricht.", '', js
 
   switch ($command) {
     case '/start':
+      if($messageArr)
       sendMessage($chatId, '<b>Hallo!</b>
 
 Ich bin der Gästebuch Bot. 
