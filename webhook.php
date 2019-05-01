@@ -130,9 +130,9 @@ if (isset($data['callback_query'])) {
         )
       )
     );
-    $messageText = $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
+    $messageText = $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo, true);
     if(mb_strlen($messageText) > 4000){
-      $messageText = $pollTitle . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
+      $messageText = $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
       if(mb_strlen($messageText) > 4000){
         $messageText = $pollText;
       }
