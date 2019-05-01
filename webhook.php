@@ -55,7 +55,7 @@ if (isset($data['callback_query'])) {
           answerCallbackQuery($queryId);
           updatePoll($pollId, true);
           list($attendeesYes, $attendeesMaybe, $attendeesNo) = getPollAttendees($pollId);
-          $attendees = buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
+          $attendees = buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo, true);
           editMessageText($chatId, $messageId, "<b>Umfrage geschlossen.</b>");
           sendMessage($chatId, $attendees);
         } else {
