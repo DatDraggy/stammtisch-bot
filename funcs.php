@@ -23,7 +23,7 @@ function notifyOnException($subject, $config, $sql = '', $e = '') {
 }
 
 function sendMessage($chatId, $text, $replyTo = '', $replyMarkup = '') {
-  if (strlen($text) > 4096){
+  if (mb_strlen($text) > 4096){
     sendMessage($chatId, substr($text, 0, 4096), $replyTo, $replyMarkup);
     return sendMessage($chatId, substr($text, 4096), $replyTo, $replyMarkup);
   }
