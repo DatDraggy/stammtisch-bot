@@ -33,11 +33,11 @@ if (isset($data['callback_query'])) {
   if (stripos($callbackData, '|') !== false) {
     list($method, $feedbackMessageId, $confirm, $time) = explode('|', $callbackData);
     if ($method === 'vote') {
-      $timeouts = checkLastExecute($timeouts, 'vote', $chatType, $senderUserId);
+      /*$timeouts = checkLastExecute($timeouts, 'vote', $chatType, $senderUserId);
       if($timeouts === false){
         answerCallbackQuery($queryId);
         die();
-      }
+      }*/
       file_put_contents($config['timeoutsave'], json_encode($timeouts));
       $inlineQueryMessageId = $data['callback_query']['inline_message_id'];
       list($pollId, $status, $title, $pollText) = getPoll('', '', $inlineQueryMessageId);
