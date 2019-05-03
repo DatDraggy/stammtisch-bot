@@ -151,6 +151,7 @@ function answerInlineQuery($inlineQueryId, $results, $offset) {
   $data = array(
     'inline_query_id' => $inlineQueryId,
     'results' => $results,
+    'cache_time' => 10,
     'is_personal' => true,
     'next_offset' => $offset + 50
   );
