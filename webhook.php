@@ -243,7 +243,7 @@ Falls du etwas nicht verstehst, kannst du hier eine Demonstration des Bots sehen
   sendChatAction($chatId, 'typing');
   list($pollId, $status, $title, $pollText) = getPoll($senderUserId, $repliedToMessageId);
   if ($pollId === false) {
-    sendMessage($chatId, 'Error oder Titel nicht gefunden. Bitte erstelle eine neue Umfrage oder kontaktiere @DatDraggy.');
+    sendMessage($chatId, 'Error oder Umfrage nicht gefunden. Bitte erstelle eine neue Umfrage oder kontaktiere @DatDraggy.');
     die();
   }
   if(mb_strlen($text) > 4000){
