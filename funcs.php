@@ -378,6 +378,7 @@ function setAttendanceStatus($pollId, $userId, $nickname, $status) {
       catch (PDOException $e) {
         notifyOnException('Database Update', $config, $sql, $e);
       }
+      return true;
     }
   } else {
     //Insert
@@ -393,6 +394,7 @@ function setAttendanceStatus($pollId, $userId, $nickname, $status) {
       notifyOnException('Database Insert', $config, $sql, $e);
     }
   }
+  return false;
 }
 
 function updatePoll($pollId, $close = false) {
