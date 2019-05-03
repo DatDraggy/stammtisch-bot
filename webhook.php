@@ -42,8 +42,10 @@ if (isset($data['callback_query'])) {
       $inlineQueryMessageId = $data['callback_query']['inline_message_id'];
       list($pollId, $status, $title, $pollText) = getPoll('', '', $inlineQueryMessageId);
       if($status === 1) {
-        setAttendanceStatus($pollId, $senderUserId, $senderName, $confirm);
-        updatePoll($pollId);
+        if(setAttendanceStatus($pollId, $senderUserId, $senderName, $confirm)) {
+          //Only update text if status changed
+          updatePoll($pollId);
+        }
       }
       answerCallbackQuery($queryId);
     } else if ($method === 'close') {
