@@ -7,6 +7,7 @@ $dump = print_r($data, true);
 
 if(file_exists($config['timeoutsave'])){
   $timeouts = json_decode(file_get_contents($config['timeoutsave']),true);
+  $timeouts = json_decode('{}', true);
 }
 else{
   file_put_contents($config['timeoutsave'], '{}');
