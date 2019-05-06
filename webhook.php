@@ -7,7 +7,7 @@ $dump = print_r($data, true);
 
 if(file_exists($config['timeoutsave'])){
   $timeouts = json_decode(file_get_contents($config['timeoutsave']),true);
-  $timeouts = json_decode('{}', true);
+  //$timeouts = json_decode('{}', true);
 }
 else{
   file_put_contents($config['timeoutsave'], '{}');
@@ -35,10 +35,12 @@ if (isset($data['callback_query'])) {
     list($method, $feedbackMessageId, $confirm, $time) = explode('|', $callbackData);
     if ($method === 'vote') {
       $timeouts = checkLastExecute($timeouts, 'vote', $chatType, $senderUserId);
+      mail($config['mail'], 'Debug', $timeouts);
       if($timeouts === false){
         answerCallbackQuery($queryId);
         die();
       }
+      mail($config['mail'], 'Debug', $timeouts);
       file_put_contents($config['timeoutsave'], json_encode($timeouts));
       $inlineQueryMessageId = $data['callback_query']['inline_message_id'];
       list($pollId, $status, $title, $pollText) = getPoll('', '', $inlineQueryMessageId);
