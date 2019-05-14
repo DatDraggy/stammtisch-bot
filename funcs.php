@@ -393,6 +393,7 @@ function setAttendanceStatus($pollId, $userId, $nickname, $status) {
     } catch (PDOException $e) {
       notifyOnException('Database Insert', $config, $sql, $e);
     }
+    return true;
   }
   return false;
 }
