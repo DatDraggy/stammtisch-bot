@@ -5,13 +5,12 @@ $response = file_get_contents('php://input');
 $data = json_decode($response, true);
 $dump = print_r($data, true);
 
-if(file_exists($config['timeoutsave'])){
-  $timeouts = json_decode(file_get_contents($config['timeoutsave']),true);
+if (file_exists($config['timeoutsave'])) {
+  $timeouts = json_decode(file_get_contents($config['timeoutsave']), true);
   //$timeouts = json_decode('{}', true);
-}
-else{
+} else {
   file_put_contents($config['timeoutsave'], '{}');
-  $timeouts = json_decode(file_get_contents($config['timeoutsave']),true);
+  $timeouts = json_decode(file_get_contents($config['timeoutsave']), true);
 }
 
 $dbConnection = buildDatabaseConnection($config);
@@ -200,7 +199,6 @@ if (isset($data['message']['reply_to_message'])) {
 $messageId = $data['message']['message_id'];
 
 if (isset($text) && !isset($repliedToMessageId)) {
-
   if (substr($text, '0', '1') == '/') {
     $messageArr = explode(' ', $text);
     $command = explode('@', $messageArr[0])[0];
@@ -211,14 +209,19 @@ if (isset($text) && !isset($repliedToMessageId)) {
     }
   } else {
     sendChatAction($chatId, 'typing');
-    $forceReply = array(
-      'force_reply' => true
-    );
-    $feedbackMessageId = sendMessage($chatId, "Ich erstelle die Umfrage <i>$text</i>.
+    if (strlen($text) <= 50) {
+      $forceReply = array(
+        'force_reply' => true
+      );
+      $feedbackMessageId = sendMessage($chatId, "Ich erstelle die Umfrage <i>$text</i>.
 Sende mir nun den Inhalt/die Beschreibung der Umfrage.
 Um dies nachträglich zu ändern, antworte einfach auf diese Nachricht.", '', json_encode($forceReply))['message_id'];
-    createPoll($senderUserId, $messageId, $feedbackMessageId, $text);
-    die();
+      createPoll($senderUserId, $messageId, $feedbackMessageId, $text);
+      die();
+    } else {
+      sendMessage($chatId, 'Der Titel der Umfrage darf nicht länger als 50 Zeichen sein. 
+Der eigentliche Umfrage-Text folgt erst, nach dem du einen Titel gewählt hast.');
+    }
   }
 
   $command = strtolower($command);
