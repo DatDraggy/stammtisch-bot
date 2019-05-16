@@ -266,7 +266,8 @@ Falls du etwas nicht verstehst, kannst du hier eine Demonstration des Bots sehen
         )
       )
     );
-    sendMessage($chatId, "Fertig. Du kannst die Umfrage nun, in dem du '@gaestebuch_bot $title' in deine Textzeile schreibst, in Gruppen teilen.", '', json_encode($replyMarkup));
+    sendMessage($chatId, "Fertig. Du kannst die Umfrage nun, in dem du '@gaestebuch_bot $title' in deine Textzeile schreibst, in Gruppen teilen.
+Falls du die Umfrage beenden möchtest, drücke einfach den \"Schließen\" Knopf.", '', json_encode($replyMarkup));
   }
   else if ($status === 1) {
     setPollNewContent($senderUserId, $repliedToMessageId, $text);
