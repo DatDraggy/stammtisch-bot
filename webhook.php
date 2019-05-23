@@ -228,10 +228,9 @@ Der eigentliche Umfrage-Text folgt erst, nach dem du einen Titel gewählt hast.'
 
   switch ($command) {
     case '/start':
-      if($messageArr)
-      sendMessage($chatId, '<b>Hallo!</b>
+      if ($messageArr) sendMessage($chatId, '<b>Hallo!</b>
 
-Ich bin der Gästebuch Bot. 
+Ich bin der Gästebuch Bot.
 Durch mich kannst du ein Gästebuch für Meetups oder Stammtische erstellen!
 
 <b>Um anzufangen, sende mir einfach den Titel deines Gästebuchs, dann können wir los legen.</b>
@@ -239,7 +238,7 @@ Vergiss aber nicht, dass Nachrichten nicht länger als <i>4000 Zeichen</i> lang 
 
 Falls du etwas nicht verstehst, kannst du hier eine Demonstration des Bots sehen: https://img.kieran.de/mO2zvp1.mp4
 
-<b>Wichtig</b>: Falls du Formatierungen (Fett, Kursiv, etc) nutzen möchtest, darfst du diese nicht auf Emoji\'s anwenden! 
+<b>Wichtig</b>: Wenn du Formatierungen (Fett, Kursiv, etc) nutzen möchtest, darfst du diese nicht auf Emoji\'s anwenden!
 Sonst passieren unschöne Dinge mit dem Text.');
       break;
     case '/test':
