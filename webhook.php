@@ -238,12 +238,17 @@ Vergiss aber nicht, dass Nachrichten nicht länger als <i>4000 Zeichen</i> lang 
 
 Falls du etwas nicht verstehst, kannst du hier eine Demonstration des Bots sehen: https://img.kieran.de/mO2zvp1.mp4
 
-<b>Wichtig</b>: Wenn du Formatierungen (Fett, Kursiv, etc) nutzen möchtest, darfst du diese nicht auf Emoji\'s anwenden!
-Sonst passieren unschöne Dinge mit dem Text.');
+<b>Wichtig</b>: Wenn du Formatierungen (Fett, Kursiv, etc) nutzen möchtest, solltest du keine Emoji\'s verwenden!
+Erklärung: /emojis');
       break;
     case '/test':
       mail($config['mail'], 'Dump', $dump);
       sendMessage($chatId, $text);
+      break;
+    case '/emojis':
+      sendMessage($chatId, 'Leider habe ich noch keinen Weg um das Emoji-Problem gefunden. Laut Telegram ist ein Emoji nämlich zwei Zeichen lang.
+
+Der Bot denkt jedoch, dass ein Emoji nur ein Zeichen lang ist. Daher würde er aus "[Emoji]<b>fett</b>-normal", ein "[Emoji]<b>fett-</b>normal" machen.');
   }
 } else if (isset($text) && isset($repliedToMessageId)) {
   sendChatAction($chatId, 'typing');
