@@ -248,7 +248,7 @@ Erklärung: /emojis');
     case '/emojis':
       sendMessage($chatId, 'Leider habe ich noch keinen Weg um das Emoji-Problem gefunden. Laut Telegram ist ein Emoji nämlich zwei Zeichen lang.
 
-Der Bot denkt jedoch, dass ein Emoji nur ein Zeichen lang ist. Daher würde er aus "[Emoji]<b>fett</b>-normal", ein "[Emoji]<b>fett-</b>normal" entstehen.');
+Der Bot denkt jedoch, dass ein Emoji nur ein Zeichen lang ist. Daher würde er aus "[Emoji]<b>fett</b>normal", ein "[Emoji]<b>fettn</b>ormal" entstehen.');
   }
 } else if (isset($text) && isset($repliedToMessageId)) {
   sendChatAction($chatId, 'typing');
