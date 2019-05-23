@@ -239,7 +239,7 @@ Vergiss aber nicht, dass Nachrichten nicht länger als <i>4000 Zeichen</i> lang 
 
 Falls du etwas nicht verstehst, kannst du hier eine Demonstration des Bots sehen: https://img.kieran.de/mO2zvp1.mp4
 
-<b>Wichtig</b>: Falls du Formatierungen (<b>b</b>, <i>i</i>, <u>u</u>) nutzen möchtest, darfst du diese nicht auf Emoji\'s anwenden! 
+<b>Wichtig</b>: Falls du Formatierungen (Fett, Kursiv, etc) nutzen möchtest, darfst du diese nicht auf Emoji\'s anwenden! 
 Sonst passieren unschöne Dinge mit dem Text.');
       break;
     case '/test':
