@@ -153,7 +153,6 @@ if (isset($data['callback_query'])) {
       'reply_markup' => $replyMarkup,
       'description' => $attendeesYes + $attendeesMaybe + $attendeesNo . ' Teilnehmer'
     );
-    //ToDo: Use Post not GET
   }
   answerInlineQuery($inlineQueryId, $results, $offset);
   die();

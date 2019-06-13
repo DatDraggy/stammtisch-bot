@@ -501,9 +501,11 @@ function checkLastExecute($timeouts, $command, $type, $id) {
   }
   global $config;
   $now = time();
-  $lastExecute = $timeouts[$id][$command];
-  if ($now < $lastExecute + $config['commandInterval']) {
-    return false;
+  if (isset($timeouts[$id])) {
+    $lastExecute = $timeouts[$id][$command];
+    if ($now < $lastExecute + $config['commandInterval']) {
+      return false;
+    }
   }
   $timeouts[$id][$command] = $now;
   return $timeouts;
