@@ -204,7 +204,7 @@ if (isset($data['message']['from']['last_name'])) {
 }
 
 if (isset($data['message']['from']['username'])) {
-  $userName = ['message']['from']['username'];
+  $userName = $data['message']['from']['username'];
 }
 
 if (isset($text) && !isset($repliedToMessageId)) {
