@@ -198,6 +198,14 @@ if (isset($data['message']['reply_to_message'])) {
   $repliedToMessageId = $replyToMessage['message_id'];
 }
 $messageId = $data['message']['message_id'];
+$userName = $data['message']['from']['first_name'];
+if (isset($data['message']['from']['last_name'])) {
+  $userName .= ' ' . $data['message']['from']['last_name'];
+}
+
+if (isset($data['message']['from']['username'])) {
+  $userName = ['message']['from']['username'];
+}
 
 if (isset($text) && !isset($repliedToMessageId)) {
   if (substr($text, '0', '1') == '/') {
@@ -217,7 +225,7 @@ if (isset($text) && !isset($repliedToMessageId)) {
       $feedbackMessageId = sendMessage($chatId, "Ich erstelle die Umfrage <i>$text</i>.
 Sende mir nun den Inhalt/die Beschreibung der Umfrage.
 Um dies nachträglich zu ändern, antworte einfach auf diese Nachricht.", '', json_encode($forceReply))['message_id'];
-      createPoll($senderUserId, $messageId, $feedbackMessageId, $text);
+      createPoll($senderUserId, $userName, $messageId, $feedbackMessageId, $text);
       die();
     } else {
       sendMessage($chatId, 'Der Titel der Umfrage darf nicht länger als 50 Zeichen sein. 

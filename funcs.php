@@ -84,13 +84,14 @@ function sendChatAction($chatId, $action) {
   }
 }
 
-function createPoll($userId, $userMessageId, $feedbackMessageId, $title) {
+function createPoll($userId, $userName, $userMessageId, $feedbackMessageId, $title) {
   global $dbConnection, $config;
 
   try {
-    $sql = "INSERT INTO polls(user_id, user_message_id, feedback_message_id, title) VALUES ('$userId', '$userMessageId', '$feedbackMessageId', $title)";
-    $stmt = $dbConnection->prepare('INSERT INTO polls(user_id, user_message_id, feedback_message_id, title) VALUES (:userId, :userMessageId, :feedbackMessageId, :title)');
+    $sql = "INSERT INTO polls(user_id, user_name, user_message_id, feedback_message_id, title) VALUES ('$userId', '$userName', '$userMessageId', '$feedbackMessageId', $title)";
+    $stmt = $dbConnection->prepare('INSERT INTO polls(user_id, user_name, user_message_id, feedback_message_id, title) VALUES (:userId, :userName, :userMessageId, :feedbackMessageId, :title)');
     $stmt->bindParam(':userId', $userId);
+    $stmt->bindParam(':userName', $userName);
     $stmt->bindParam(':userMessageId', $userMessageId);
     $stmt->bindParam(':feedbackMessageId', $feedbackMessageId);
     $stmt->bindParam(':title', $title);
