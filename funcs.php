@@ -294,6 +294,7 @@ function buildPollAttendees($pollId, $yes, $maybe, $no, $link = false) {
     $rows = $stmt->fetchAll();
   } catch (PDOException $e) {
     notifyOnException('Database Select', $config, $sql, $e);
+    return false;
   }
   $lastStatus = 1;
   $return = "
@@ -348,7 +349,7 @@ function buildPollAttendees($pollId, $yes, $maybe, $no, $link = false) {
   /*
    *
    */
-  return false;
+  return $return;
 }
 
 function setPollContent($userId, $feedbackMessageId, $text) {
