@@ -287,8 +287,8 @@ function buildPollAttendees($pollId, $yes, $maybe, $no, $link = false) {
 
 
   try {
-    $sql = "SELECT user_id, nickname, status, time FROM attendees WHERE poll_id = $pollId ORDER BY status, time";
-    $stmt = $dbConnection->prepare('SELECT user_id, nickname, status, time FROM attendees WHERE poll_id = :pollId ORDER BY status, time');
+    $sql = "SELECT user_id, nickname, status FROM attendees WHERE poll_id = $pollId ORDER BY status, time";
+    $stmt = $dbConnection->prepare('SELECT user_id, nickname, status FROM attendees WHERE poll_id = :pollId ORDER BY status, time');
     $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
     $rows = $stmt->fetchAll();
