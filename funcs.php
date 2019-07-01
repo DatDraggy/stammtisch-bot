@@ -217,9 +217,11 @@ function buildPollAttendees($pollId, $yes, $maybe, $no, $link = false) {
   try {
     //$sql = "SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = $userId GROUP BY attendees.poll_id";
     //$stmt = $dbConnection->prepare('SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = :userId GROUP BY attendees.poll_id');
-    $sql = "SELECT user_id, nickname FROM attendees WHERE poll_id = $pollId AND status = 1 ORDER BY time ASC";
-    $stmt = $dbConnection->prepare('SELECT user_id, nickname FROM attendees WHERE poll_id = :pollId AND status = 1 ORDER BY time ASC');
+    $status = 1;
+    $sql = "SELECT user_id, nickname FROM attendees WHERE poll_id = $pollId AND status = $status ORDER BY time";
+    $stmt = $dbConnection->prepare('SELECT user_id, nickname FROM attendees WHERE poll_id = :pollId AND status = :status ORDER BY time');
     $stmt->bindParam(':pollId', $pollId);
+    $stmt->bindParam(':status', $status);
     $stmt->execute();
     $rows = $stmt->fetchAll();
     if ($link) {
@@ -237,10 +239,8 @@ function buildPollAttendees($pollId, $yes, $maybe, $no, $link = false) {
     $return .= "
 <b>Vielleicht - [$maybe]</b>
 ";
-
-    $sql = "SELECT user_id, nickname FROM attendees WHERE poll_id = $pollId AND status = 2 ORDER BY time ASC";
-    $stmt = $dbConnection->prepare('SELECT user_id, nickname FROM attendees WHERE poll_id = :pollId AND status = 2 ORDER BY time ASC');
-    $stmt->bindParam(':pollId', $pollId);
+    $status = 2;
+    $stmt->bindParam(':status', $status);
     $stmt->execute();
     $rows = $stmt->fetchAll();
     if ($link) {
@@ -259,9 +259,8 @@ function buildPollAttendees($pollId, $yes, $maybe, $no, $link = false) {
 <b>Abmeldung - [$no]</b>
 ";
 
-    $sql = "SELECT user_id, nickname FROM attendees WHERE poll_id = $pollId AND status = 3 ORDER BY time ASC";
-    $stmt = $dbConnection->prepare('SELECT user_id, nickname FROM attendees WHERE poll_id = :pollId AND status = 3 ORDER BY time ASC');
-    $stmt->bindParam(':pollId', $pollId);
+    $status = 3;
+    $stmt->bindParam(':status', $status);
     $stmt->execute();
     $rows = $stmt->fetchAll();
     if ($link) {
