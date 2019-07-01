@@ -23,21 +23,28 @@ function notifyOnException($subject, $config, $sql = '', $e = '') {
 }
 
 function sendMessage($chatId, $text, $replyTo = '', $replyMarkup = '') {
-  if (mb_strlen($text) > 4096){
+  if (mb_strlen($text) > 4096) {
     sendMessage($chatId, substr($text, 0, 4096), $replyTo, $replyMarkup);
     return sendMessage($chatId, substr($text, 4096), $replyTo, $replyMarkup);
+  } else {
+    $data = array(
+      'disable_web_page_preview' => true,
+      'parse_mode' => 'html',
+      'chat_id' => $chatId,
+      'text' => $text,
+      'reply_to_message_id' => $replyTo,
+      'reply_markup' => $replyMarkup
+    );
+    return makeApiRequest('sendMessage', $data);
   }
-  else {
+}
+
+function deleteMessage($chatId, $messageId) {
   $data = array(
-    'disable_web_page_preview' => true,
-    'parse_mode' => 'html',
     'chat_id' => $chatId,
-    'text' => $text,
-    'reply_to_message_id' => $replyTo,
-    'reply_markup' => $replyMarkup
+    'message_id' => $messageId
   );
-  return makeApiRequest('sendMessage', $data);
-  }
+  return makeApiRequest('deleteMessage', $data);
 }
 
 function answerCallbackQuery($queryId, $text = '') {
@@ -78,7 +85,8 @@ function sendChatAction($chatId, $action) {
   );
   if (in_array($action, $actionList)) {
     $data = array(
-      'chat_id' => $chatId,'action'=>$action
+      'chat_id' => $chatId,
+      'action' => $action
     );
     return makeApiRequest('sendChatAction', $data);
   }
@@ -362,7 +370,7 @@ function setAttendanceStatus($pollId, $userId, $nickname, $status) {
   }
   if ($stmt->rowCount() > 0) {
     //Update
-    if($row['status'] != $status) {
+    if ($row['status'] != $status) {
       try {
         $sql = "UPDATE attendees SET status = $status, nickname = $nickname, time = UNIX_TIMESTAMP() WHERE poll_id = $pollId AND user_id = $userId";
         $stmt = $dbConnection->prepare('UPDATE attendees SET status = :status, nickname = :nickname, time = UNIX_TIMESTAMP() WHERE poll_id = :pollId AND user_id = :userId');
@@ -371,8 +379,7 @@ function setAttendanceStatus($pollId, $userId, $nickname, $status) {
         $stmt->bindParam(':pollId', $pollId);
         $stmt->bindParam(':userId', $userId);
         $stmt->execute();
-      }
-      catch (PDOException $e) {
+      } catch (PDOException $e) {
         notifyOnException('Database Update', $config, $sql, $e);
       }
       return true;
@@ -411,6 +418,7 @@ function updatePoll($pollId, $close = false) {
     $pollText = $row['text'];
     $pollTitle = $row['title'];
     $pollInlineMessageId = $row['inline_message_id'];
+    $extras = json_decode($row['extra'], true);
     list($attendeesYes, $attendeesMaybe, $attendeesNo) = getPollAttendees($pollId);
     $text = $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo, true);
     /*if(mb_strlen($text) > 4000){
@@ -449,6 +457,9 @@ function updatePoll($pollId, $close = false) {
               'text' => 'Abmeldung - ' . $attendeesNo,
               'callback_data' => 'vote|0|3|0'
             )
+          ),
+          array(
+
           )
         )
       );
@@ -460,19 +471,32 @@ function updatePoll($pollId, $close = false) {
   }
 }
 
-function updatePollText($pollId){
+function updatePollText($pollId) {
   global $dbConnection, $config;
 
-  try{
+  try {
     $sql = "UPDATE polls SET text = text_new, text_new = NULL WHERE id = $pollId AND text_new IS NOT NULL";
     $stmt = $dbConnection->prepare('UPDATE polls SET text = text_new, text_new = NULL WHERE id = :pollId AND text_new IS NOT NULL');
     $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
-  }catch (PDOException $e) {
+  } catch (PDOException $e) {
     notifyOnException('Database Update', $config, $sql, $e);
     return false;
   }
   return true;
+}
+
+function enableExtrasForPoll($pollId) {
+  global $dbConnection, $config;
+
+  try {
+    $sql = "UPDATE polls INNER JOIN users ON polls.user_id = users.user_id SET extra = users.extra WHERE id = $pollId";
+    $stmt = $dbConnection->prepare('UPDATE polls INNER JOIN users ON polls.user_id = users.user_id SET extra = users.extra WHERE id = :pollId');
+    $stmt->bindParam(':pollId', $pollId);
+    $stmt->execute();
+  } catch (PDOException $e) {
+    notifyOnException('Database Update', $config, $sql, $e);
+  }
 }
 
 function editMessageText($chatId, $messageId, $text, $replyMarkup = '', $inlineMessageId = '') {
@@ -513,8 +537,7 @@ function checkLastExecute($timeouts, $command, $type, $id) {
   return $timeouts;
 }
 
-function mb_substr_replace($original, $replacement, $position, $length)
-{
+function mb_substr_replace($original, $replacement, $position, $length) {
   $startString = mb_substr($original, 0, $position, "UTF-8");
   $endString = mb_substr($original, $position + $length, mb_strlen($original), "UTF-8");
 
