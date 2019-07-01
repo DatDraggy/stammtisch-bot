@@ -23,20 +23,19 @@ function notifyOnException($subject, $config, $sql = '', $e = '') {
 }
 
 function sendMessage($chatId, $text, $replyTo = '', $replyMarkup = '') {
-  if (mb_strlen($text) > 4096){
+  if (mb_strlen($text) > 4096) {
     sendMessage($chatId, substr($text, 0, 4096), $replyTo, $replyMarkup);
     return sendMessage($chatId, substr($text, 4096), $replyTo, $replyMarkup);
-  }
-  else {
-  $data = array(
-    'disable_web_page_preview' => true,
-    'parse_mode' => 'html',
-    'chat_id' => $chatId,
-    'text' => $text,
-    'reply_to_message_id' => $replyTo,
-    'reply_markup' => $replyMarkup
-  );
-  return makeApiRequest('sendMessage', $data);
+  } else {
+    $data = array(
+      'disable_web_page_preview' => true,
+      'parse_mode' => 'html',
+      'chat_id' => $chatId,
+      'text' => $text,
+      'reply_to_message_id' => $replyTo,
+      'reply_markup' => $replyMarkup
+    );
+    return makeApiRequest('sendMessage', $data);
   }
 }
 
@@ -78,7 +77,8 @@ function sendChatAction($chatId, $action) {
   );
   if (in_array($action, $actionList)) {
     $data = array(
-      'chat_id' => $chatId,'action'=>$action
+      'chat_id' => $chatId,
+      'action' => $action
     );
     return makeApiRequest('sendChatAction', $data);
   }
@@ -194,11 +194,17 @@ function getPollAttendees($pollId) {
   try {
     //$sql = "SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = $userId GROUP BY attendees.poll_id";
     //$stmt = $dbConnection->prepare('SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = :userId GROUP BY attendees.poll_id');
-    $sql = "SELECT (SELECT count(user_id) FROM attendees WHERE poll_id = $pollId AND status = 1) as yes, (SELECT count(user_id) FROM attendees WHERE poll_id = $pollId AND status = 2) as maybe, (SELECT count(user_id) FROM attendees WHERE poll_id = $pollId AND status = 3) as no";
-    $stmt = $dbConnection->prepare('SELECT (SELECT count(user_id) FROM attendees WHERE poll_id = :pollId AND status = 1) as yes, (SELECT count(user_id) FROM attendees WHERE poll_id = :pollId2 AND status = 2) as maybe, (SELECT count(user_id) FROM attendees WHERE poll_id = :pollId3 AND status = 3) as no');
+    $sql = "SELECT 
+        sum(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS yes,
+        sum(CASE WHEN status = 2 THEN 1 ELSE 0 END) AS maybe,
+        sum(CASE WHEN status = 3 THEN 1 ELSE 0 END) AS no
+        FROM attendees WHERE poll_id = $pollId";
+    $stmt = $dbConnection->prepare('SELECT 
+        sum(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS yes,
+        sum(CASE WHEN status = 2 THEN 1 ELSE 0 END) AS maybe,
+        sum(CASE WHEN status = 3 THEN 1 ELSE 0 END) AS no
+        FROM attendees WHERE poll_id = :pollId');
     $stmt->bindParam(':pollId', $pollId);
-    $stmt->bindParam(':pollId2', $pollId);
-    $stmt->bindParam(':pollId3', $pollId);
     $stmt->execute();
     return $stmt->fetch();
   } catch (PDOException $e) {
@@ -214,7 +220,7 @@ function buildPollAttendees($pollId, $yes, $maybe, $no, $link = false) {
 <b>Anmeldung - [$yes]</b>
 ";
 
-  try {
+  /*try {
     //$sql = "SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = $userId GROUP BY attendees.poll_id";
     //$stmt = $dbConnection->prepare('SELECT polls.id, title, text, count(attendees.user_id) as attendees FROM polls INNER JOIN attendees ON attendees.poll_id = polls.id WHERE polls.user_id = :userId GROUP BY attendees.poll_id');
     $status = 1;
@@ -277,7 +283,71 @@ function buildPollAttendees($pollId, $yes, $maybe, $no, $link = false) {
     return $return;
   } catch (PDOException $e) {
     notifyOnException('Database Select', $config, $sql, $e);
+  }*/
+
+
+  try {
+    $sql = "SELECT user_id, nickname, status, time FROM attendees WHERE poll_id = $pollId ORDER BY status, time";
+    $stmt = $dbConnection->prepare('SELECT user_id, nickname, status, time FROM attendees WHERE poll_id = :pollId ORDER BY status, time');
+    $stmt->bindParam(':pollId', $pollId);
+    $stmt->execute();
+    $rows = $stmt->fetchAll();
+  } catch (PDOException $e) {
+    notifyOnException('Database Select', $config, $sql, $e);
   }
+  $lastStatus = 1;
+  $return = "
+
+<b>Anmeldung - [$yes]</b>
+";
+  /*
+   * Keep links if character limit not met
+   */
+  if ($link) {
+    foreach ($rows as $row) {
+      if ($lastStatus != $row['status']) {
+        if ($row['status'] === 2) {
+          $return .= "
+<b>Vielleicht - [$maybe]</b>
+";
+        }
+        if ($row['status'] === 3) {
+          $return .= "
+<b>Abmeldung - [$no]</b>
+";
+        }
+        $lastStatus = $row['status'];
+      }
+      $return .= '<a href="tg://user?id=' . $row['user_id'] . '">' . $row['nickname'] . '</a>
+';
+    }
+  }
+  /*
+   *
+   */ /*
+   * If character limit is reached, disable links
+   */ else {
+    foreach ($rows as $row) {
+      if ($lastStatus != $row['status']) {
+        if ($row['status'] === 2) {
+          $return .= "
+<b>Vielleicht - [$maybe]</b>
+";
+        }
+        if ($row['status'] === 3) {
+          $return .= "
+<b>Abmeldung - [$no]</b>
+";
+        }
+        $lastStatus = $row['status'];
+      }
+      $return .= $row['nickname'] . '
+';
+    }
+  }
+  /*
+   *
+   */
   return false;
 }
 
@@ -361,7 +431,7 @@ function setAttendanceStatus($pollId, $userId, $nickname, $status) {
   }
   if ($stmt->rowCount() > 0) {
     //Update
-    if($row['status'] != $status) {
+    if ($row['status'] != $status) {
       try {
         $sql = "UPDATE attendees SET status = $status, nickname = $nickname, time = UNIX_TIMESTAMP() WHERE poll_id = $pollId AND user_id = $userId";
         $stmt = $dbConnection->prepare('UPDATE attendees SET status = :status, nickname = :nickname, time = UNIX_TIMESTAMP() WHERE poll_id = :pollId AND user_id = :userId');
@@ -370,8 +440,7 @@ function setAttendanceStatus($pollId, $userId, $nickname, $status) {
         $stmt->bindParam(':pollId', $pollId);
         $stmt->bindParam(':userId', $userId);
         $stmt->execute();
-      }
-      catch (PDOException $e) {
+      } catch (PDOException $e) {
         notifyOnException('Database Update', $config, $sql, $e);
       }
       return true;
@@ -459,15 +528,15 @@ function updatePoll($pollId, $close = false) {
   }
 }
 
-function updatePollText($pollId){
+function updatePollText($pollId) {
   global $dbConnection, $config;
 
-  try{
+  try {
     $sql = "UPDATE polls SET text = text_new, text_new = NULL WHERE id = $pollId AND text_new IS NOT NULL";
     $stmt = $dbConnection->prepare('UPDATE polls SET text = text_new, text_new = NULL WHERE id = :pollId AND text_new IS NOT NULL');
     $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
-  }catch (PDOException $e) {
+  } catch (PDOException $e) {
     notifyOnException('Database Update', $config, $sql, $e);
     return false;
   }
@@ -512,8 +581,7 @@ function checkLastExecute($timeouts, $command, $type, $id) {
   return $timeouts;
 }
 
-function mb_substr_replace($original, $replacement, $position, $length)
-{
+function mb_substr_replace($original, $replacement, $position, $length) {
   $startString = mb_substr($original, 0, $position, "UTF-8");
   $endString = mb_substr($original, $position + $length, mb_strlen($original), "UTF-8");
 
