@@ -532,7 +532,7 @@ function updatePoll($pollId, $close = false) {
 
     $edited = editMessageText('', '', $text, $replyMarkup, $row['inline_message_id']);
     if ($edited === false) {
-      deletePollMessage($row['inline_message_id']);
+      deletePollMessage($row['inline_message_id'], $pollId);
     }
     mail($config['mail'], 'Debug', print_r($edited, true));
 
@@ -544,8 +544,18 @@ function updatePoll($pollId, $close = false) {
   mail($config['mail'], 'Time', print_r($watch, true));
 }
 
-function deletePollMessage($inlineMessageId) {
+function deletePollMessage($inlineMessageId, $pollId) {
   global $dbConnection, $config;
+
+  try {
+    $sql = "INSERT INTO messagesDEL(inline_message_id, poll_id) VALUES ($inlineMessageId, $pollId)";
+    $stmt = $dbConnection->prepare('INSERT INTO messagesDEL(inline_message_id, poll_id) VALUES (:inlineMessageId, :pollId)');
+    $stmt->bindParam(':inlineMessageId', $inlineMessageId);
+    $stmt->bindParam(':pollId', $pollId);
+    $stmt->execute();
+  } catch (PDOException $e) {
+    notifyOnException('Database Select', $config, $sql, $e);
+  }
 
   try {
     $sql = "DELETE FROM messages WHERE inline_message_id = $inlineMessageId";
