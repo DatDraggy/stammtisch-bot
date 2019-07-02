@@ -476,12 +476,17 @@ function updatePoll($pollId, $close = false) {
   } catch (PDOException $e) {
     notifyOnException('Database Select', $config, $sql, $e);
   }
+  $i=0;
+  $watch['start'] = microtime(true);
   foreach ($rows as $row) {
+    $watch[$i][] = microtime(true);
     $pollText = $row['text'];
     $pollTitle = $row['title'];
     $pollInlineMessageId = $row['inline_message_id'];
     list($attendeesYes, $attendeesMaybe, $attendeesNo) = getPollAttendees($pollId);
+    $watch[$i][] = microtime(true);
     $text = $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo, true);
+    $watch[$i][] = microtime(true);
     /*if(mb_strlen($text) > 4000){
       $text = "<a href=\"https://t.me/gaestebuch_bot?start=$pollInlineMessageId\">$pollTitle</a>" . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo, true);
       if(mb_strlen($text) > 4000){
@@ -497,7 +502,7 @@ function updatePoll($pollId, $close = false) {
         $text = $pollText;
       }
     }
-
+    $watch[$i][] = microtime(true);
     if (!$close) {
       $replyMarkup = array(
         'inline_keyboard' => array(
@@ -526,7 +531,11 @@ function updatePoll($pollId, $close = false) {
     }
 
     editMessageText('', '', $text, $replyMarkup, $row['inline_message_id']);
+    $watch[$i][] = microtime(true);
   }
+  $watch['end'] = microtime(true);
+
+  mail($config['mail'], 'Time', print_r($watch, true));
 }
 
 function updatePollText($pollId) {

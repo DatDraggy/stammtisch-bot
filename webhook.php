@@ -36,27 +36,21 @@ if (isset($data['callback_query'])) {
     list($method, $feedbackMessageId, $confirm, $time) = explode('|', $callbackData);
     if ($method === 'vote') {
       $watch = array(5);
-      $watch[0] = microtime(true);
       $timeouts = checkLastExecute($timeouts, 'vote', $chatType, $senderUserId);
       if ($timeouts === false) {
         answerCallbackQuery($queryId);
         die();
       }
       file_put_contents($config['timeoutsave'], json_encode($timeouts));
-      $watch[1] = microtime(true);
       $inlineQueryMessageId = $data['callback_query']['inline_message_id'];
       list($pollId, $status, $title, $pollText) = getPoll('', '', $inlineQueryMessageId);
-      $watch[2] = microtime(true);
       if ($status === 1) {
         if (setAttendanceStatus($pollId, $senderUserId, $senderName, $confirm)) {
-          $watch[3] = microtime(true);
           //Only update text if status changed
           updatePoll($pollId);
-          $watch[4] = microtime(true);
         }
       }
       answerCallbackQuery($queryId);
-      mail($config['mail'], 'Time', print_r($watch, true));
     } else if ($method === 'close') {
       $poll = getPoll($senderUserId, $feedbackMessageId);
       $pollId = $poll['id'];
