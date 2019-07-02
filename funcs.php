@@ -57,8 +57,7 @@ function makeApiRequest($method, $data) {
   } catch (\GuzzleHttp\Exception\BadResponseException $e) {
     $body = $e->getResponse()->getBody();
     mail($config['mail'], 'Error', print_r($body->getContents(), true) . "\n" . print_r($data, true) . "\n" . __FILE__);
-    //return false;
-    return $body->getContents();
+    return false;
   }
   return json_decode($response->getBody(), true)['result'];
 }
@@ -477,7 +476,7 @@ function updatePoll($pollId, $close = false) {
   } catch (PDOException $e) {
     notifyOnException('Database Select', $config, $sql, $e);
   }
-  $i=0;
+  $i = 0;
   $watch['start'] = microtime(true);
   foreach ($rows as $row) {
     $watch[$i][] = microtime(true);
@@ -532,10 +531,10 @@ function updatePoll($pollId, $close = false) {
     }
 
     $edited = editMessageText('', '', $text, $replyMarkup, $row['inline_message_id']);
-    if(strpos($edited, 'MESSAGE_ID_INVALID') !== false){
+    if ($edited === false) {
       deletePollMessage($row['inline_message_id']);
     }
-    mail($config['mail'], 'Debug', print_r($edited,true));
+    mail($config['mail'], 'Debug', print_r($edited, true));
 
     $watch[$i][] = microtime(true);
     $i += 1;
@@ -545,7 +544,7 @@ function updatePoll($pollId, $close = false) {
   mail($config['mail'], 'Time', print_r($watch, true));
 }
 
-function deletePollMessage($inlineMessageId){
+function deletePollMessage($inlineMessageId) {
   global $dbConnection, $config;
 
   try {
