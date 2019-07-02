@@ -476,17 +476,12 @@ function updatePoll($pollId, $close = false) {
   } catch (PDOException $e) {
     notifyOnException('Database Select', $config, $sql, $e);
   }
-  $i = 0;
-  $watch['start'] = microtime(true);
   foreach ($rows as $row) {
-    $watch[$i][] = microtime(true);
     $pollText = $row['text'];
     $pollTitle = $row['title'];
     $pollInlineMessageId = $row['inline_message_id'];
     list($attendeesYes, $attendeesMaybe, $attendeesNo) = getPollAttendees($pollId);
-    $watch[$i][] = microtime(true);
     $text = $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo, true);
-    $watch[$i][] = microtime(true);
     /*if(mb_strlen($text) > 4000){
       $text = "<a href=\"https://t.me/gaestebuch_bot?start=$pollInlineMessageId\">$pollTitle</a>" . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo, true);
       if(mb_strlen($text) > 4000){
@@ -502,7 +497,6 @@ function updatePoll($pollId, $close = false) {
         $text = $pollText;
       }
     }
-    $watch[$i][] = microtime(true);
     if (!$close) {
       $replyMarkup = array(
         'inline_keyboard' => array(
@@ -534,14 +528,7 @@ function updatePoll($pollId, $close = false) {
     if ($edited === false) {
       deletePollMessage($row['inline_message_id'], $pollId);
     }
-    mail($config['mail'], 'Debug', print_r($edited, true));
-
-    $watch[$i][] = microtime(true);
-    $i += 1;
   }
-  $watch['end'] = microtime(true);
-
-  mail($config['mail'], 'Time', print_r($watch, true));
 }
 
 function deletePollMessage($inlineMessageId, $pollId) {
