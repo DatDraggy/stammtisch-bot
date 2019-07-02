@@ -57,7 +57,8 @@ function makeApiRequest($method, $data) {
   } catch (\GuzzleHttp\Exception\BadResponseException $e) {
     $body = $e->getResponse()->getBody();
     mail($config['mail'], 'Error', print_r($body->getContents(), true) . "\n" . print_r($data, true) . "\n" . __FILE__);
-    return false;
+    //return false;
+    return json_decode($body->getContents(), true);
   }
   return json_decode($response->getBody(), true)['result'];
 }
@@ -530,13 +531,30 @@ function updatePoll($pollId, $close = false) {
       $replyMarkup = '';
     }
 
-    editMessageText('', '', $text, $replyMarkup, $row['inline_message_id']);
+    $edited = editMessageText('', '', $text, $replyMarkup, $row['inline_message_id']);
+    if($edited['ok'] == false && $edited['description'] == 'Bad Request: MESSAGE_ID_INVALID'){
+      deletePollMessage($row['inline_message_id']);
+    }
+    
     $watch[$i][] = microtime(true);
     $i += 1;
   }
   $watch['end'] = microtime(true);
 
   mail($config['mail'], 'Time', print_r($watch, true));
+}
+
+function deletePollMessage($inlineMessageId){
+  global $dbConnection, $config;
+
+  try {
+    $sql = "DELETE FROM messages WHERE inline_message_id = $inlineMessageId";
+    $stmt = $dbConnection->prepare('DELETE FROM messages WHERE inline_message_id = :inlineMessageId');
+    $stmt->bindParam(':inlineMessageId', $inlineMessageId);
+    $stmt->execute();
+  } catch (PDOException $e) {
+    notifyOnException('Database Select', $config, $sql, $e);
+  }
 }
 
 function updatePollText($pollId) {
