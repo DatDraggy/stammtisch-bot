@@ -535,6 +535,7 @@ function updatePoll($pollId, $close = false) {
     if($edited['ok'] == false && strpos($edited['description'], 'MESSAGE_ID_INVALID') !== false){
       deletePollMessage($row['inline_message_id']);
     }
+    mail($config['mail'], 'Debug', print_r($edited,true));
 
     $watch[$i][] = microtime(true);
     $i += 1;
