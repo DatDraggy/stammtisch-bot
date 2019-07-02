@@ -532,10 +532,10 @@ function updatePoll($pollId, $close = false) {
     }
 
     $edited = editMessageText('', '', $text, $replyMarkup, $row['inline_message_id']);
-    if($edited['ok'] == false && $edited['description'] == 'Bad Request: MESSAGE_ID_INVALID'){
+    if($edited['ok'] == false && strpos($edited['description'], 'MESSAGE_ID_INVALID') !== false){
       deletePollMessage($row['inline_message_id']);
     }
-    
+
     $watch[$i][] = microtime(true);
     $i += 1;
   }
