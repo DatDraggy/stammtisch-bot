@@ -532,6 +532,7 @@ function updatePoll($pollId, $close = false) {
 
     editMessageText('', '', $text, $replyMarkup, $row['inline_message_id']);
     $watch[$i][] = microtime(true);
+    $i += 1;
   }
   $watch['end'] = microtime(true);
 
