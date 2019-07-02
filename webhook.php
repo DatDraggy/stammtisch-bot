@@ -56,7 +56,7 @@ if (isset($data['callback_query'])) {
         }
       }
       answerCallbackQuery($queryId);
-      mail($config['mail'], 'Time', print_r($watch, true) . "\n" . $watch[1] - $watch[0] . ' ' . $watch[2] - $watch[1] . ' ' . $watch[3] - $watch[2] . ' ' . $watch[4] - $watch[3]);
+      mail($config['mail'], 'Time', print_r($watch, true));
     } else if ($method === 'close') {
       $poll = getPoll($senderUserId, $feedbackMessageId);
       $pollId = $poll['id'];
