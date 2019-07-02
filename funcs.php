@@ -58,7 +58,7 @@ function makeApiRequest($method, $data) {
     $body = $e->getResponse()->getBody();
     mail($config['mail'], 'Error', print_r($body->getContents(), true) . "\n" . print_r($data, true) . "\n" . __FILE__);
     //return false;
-    return json_decode($body->getContents(), true);
+    return $body->getContents();
   }
   return json_decode($response->getBody(), true)['result'];
 }
@@ -532,7 +532,7 @@ function updatePoll($pollId, $close = false) {
     }
 
     $edited = editMessageText('', '', $text, $replyMarkup, $row['inline_message_id']);
-    if($edited['ok'] == false && strpos($edited['description'], 'MESSAGE_ID_INVALID') !== false){
+    if(strpos($edited, 'MESSAGE_ID_INVALID') !== false){
       deletePollMessage($row['inline_message_id']);
     }
     mail($config['mail'], 'Debug', print_r($edited,true));
