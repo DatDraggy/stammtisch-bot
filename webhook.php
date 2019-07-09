@@ -238,9 +238,6 @@ Der eigentliche Umfrage-Text folgt erst, nach dem du einen Titel gewählt hast.'
   $command = strtolower($command);
 
   switch ($command) {
-    case '/merp':
-      updatePoll(102, true);
-      break;
     case '/start':
       if ($messageArr) {
         sendMessage($chatId, '<b>Hallo!</b>
