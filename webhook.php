@@ -239,7 +239,7 @@ Der eigentliche Umfrage-Text folgt erst, nach dem du einen Titel gewählt hast.'
 
   switch ($command) {
     case '/merp':
-      updatePoll(102);
+      updatePoll(102, true);
       break;
     case '/start':
       if ($messageArr) {
