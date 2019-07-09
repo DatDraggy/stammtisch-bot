@@ -319,7 +319,7 @@ function buildPollAttendees($pollId, $yes, $maybe, $no, $link = false) {
         }
         $lastStatus = $row['status'];
       }
-      $return .= '<a href="tg://user?id=' . $row['user_id'] . '">' . $row['nickname'] . '</a>
+      $return .= '<a href="tg://user?id=' . $row['user_id'] . '">' . urldecode(str_replace('%E2%80%8F', '', urlencode($row['nickname']))) . '</a>
 ';
     }
   }

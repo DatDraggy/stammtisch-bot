@@ -31,6 +31,7 @@ if (isset($data['callback_query'])) {
   if (isset($data['callback_query']['from']['last_name'])) {
     $senderName .= ' ' . $data['callback_query']['from']['last_name'];
   }
+  $senderName = urldecode(str_replace('%E2%80%8F', '', urlencode($senderName)));
 
   if (stripos($callbackData, '|') !== false) {
     list($method, $feedbackMessageId, $confirm, $time) = explode('|', $callbackData);
@@ -237,6 +238,9 @@ Der eigentliche Umfrage-Text folgt erst, nach dem du einen Titel gewählt hast.'
   $command = strtolower($command);
 
   switch ($command) {
+    case '/merp':
+      updatePoll(102);
+      break;
     case '/start':
       if ($messageArr) {
         sendMessage($chatId, '<b>Hallo!</b>
