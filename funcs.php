@@ -525,6 +525,7 @@ function updatePoll($pollId, $close = false) {
     }
 
     $edited = editMessageText('', '', $text, $replyMarkup, $row['inline_message_id']);
+    mail($config['mail'], 'Debug Edit', print_r($edited, true));
     if ($edited === false) {
       deletePollMessage($row['inline_message_id'], $pollId);
     }

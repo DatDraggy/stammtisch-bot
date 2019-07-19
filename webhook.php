@@ -14,7 +14,7 @@ if (file_exists($config['timeoutsave'])) {
   file_put_contents($config['timeoutsave'], '{}');
   $timeouts = json_decode(file_get_contents($config['timeoutsave']), true);
 }
-mail($config['mail'], 'Debug', $dump);
+
 $dbConnection = buildDatabaseConnection($config);
 if (isset($data['callback_query'])) {
   if (isset($data['callback_query']['message'])) {
