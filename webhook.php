@@ -45,7 +45,7 @@ if (isset($data['callback_query'])) {
       $inlineQueryMessageId = $data['callback_query']['inline_message_id'];
       list($pollId, $status, $title, $pollText) = getPoll('', '', $inlineQueryMessageId);
       if ($status === 1) {
-        if (setAttendanceStatus($pollId, $senderUserId, $senderName, $confirm)) {
+        if (setAttendanceStatus($pollId, $senderUserId, $senderName, $confirm) && $confirm !== 3) {
           //Only update text if status changed
           updatePoll($pollId);
         }
@@ -132,7 +132,8 @@ if (isset($data['callback_query'])) {
         ),
         array(
           array(
-            'text' => 'Abmeldung - ' . $attendeesNo,
+            /*'text' => 'Abmeldung - ' . $attendeesNo,*/
+            'text' => 'Abmeldung',
             'callback_data' => 'vote|0|3|0'
           )
         )
