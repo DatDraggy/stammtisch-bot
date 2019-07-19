@@ -515,7 +515,8 @@ function updatePoll($pollId, $close = false) {
           ),
           array(
             array(
-              'text' => 'Abmeldung - ' . $attendeesNo,
+              /*'text' => 'Abmeldung - ' . $attendeesNo,*/
+              'text' => 'Abmeldung',
               'callback_data' => 'vote|0|3|0'
             )
           )
