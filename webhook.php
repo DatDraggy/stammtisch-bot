@@ -36,6 +36,7 @@ if (isset($data['callback_query'])) {
   if (stripos($callbackData, '|') !== false) {
     list($method, $feedbackMessageId, $confirm, $time) = explode('|', $callbackData);
     if ($method === 'vote') {
+      mail($config['mail'], 'Debug', $dump);
       $timeouts = checkLastExecute($timeouts, 'vote', $chatType, $senderUserId);
       if ($timeouts === false) {
         answerCallbackQuery($queryId);
