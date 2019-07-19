@@ -197,14 +197,12 @@ function getPollAttendees($pollId) {
     $sql = "SELECT 
         sum(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS yes,
         sum(CASE WHEN status = 2 THEN 1 ELSE 0 END) AS maybe,
-        /*sum(CASE WHEN status = 3 THEN 1 ELSE 0 END) AS no*/
-        0 as no
+        sum(CASE WHEN status = 3 THEN 1 ELSE 0 END) AS no
         FROM attendees WHERE poll_id = $pollId";
     $stmt = $dbConnection->prepare('SELECT 
         sum(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS yes,
         sum(CASE WHEN status = 2 THEN 1 ELSE 0 END) AS maybe,
-        /*sum(CASE WHEN status = 3 THEN 1 ELSE 0 END) AS no*/
-        0 as no
+        sum(CASE WHEN status = 3 THEN 1 ELSE 0 END) AS no
         FROM attendees WHERE poll_id = :pollId');
     $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
@@ -289,8 +287,8 @@ function buildPollAttendees($pollId, $yes, $maybe, $no, $link = false) {
 
 
   try {
-    $sql = "SELECT user_id, nickname, status FROM attendees WHERE poll_id = $pollId AND (status = 1 OR status = 2) ORDER BY status, time";
-    $stmt = $dbConnection->prepare('SELECT user_id, nickname, status FROM attendees WHERE poll_id = :pollId AND (status = 1 OR status = 2) ORDER BY status, time');
+    $sql = "SELECT user_id, nickname, status FROM attendees WHERE poll_id = $pollId ORDER BY status, time";
+    $stmt = $dbConnection->prepare('SELECT user_id, nickname, status FROM attendees WHERE poll_id = :pollId ORDER BY status, time');
     $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
     $rows = $stmt->fetchAll();
@@ -325,8 +323,9 @@ function buildPollAttendees($pollId, $yes, $maybe, $no, $link = false) {
 ';
     }
   }
-
   /*
+   *
+   */ /*
    * If character limit is reached, disable links
    */ else {
     foreach ($rows as $row) {
@@ -515,8 +514,7 @@ function updatePoll($pollId, $close = false) {
           ),
           array(
             array(
-              /*'text' => 'Abmeldung - ' . $attendeesNo,*/
-              'text' => 'Abmeldung',
+              'text' => 'Abmeldung - ' . $attendeesNo,
               'callback_data' => 'vote|0|3|0'
             )
           )

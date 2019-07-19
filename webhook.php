@@ -132,8 +132,7 @@ if (isset($data['callback_query'])) {
         ),
         array(
           array(
-            /*'text' => 'Abmeldung - ' . $attendeesNo,*/
-            'text' => 'Abmeldung',
+            'text' => 'Abmeldung - ' . $attendeesNo,
             'callback_data' => 'vote|0|3|0'
           )
         )
