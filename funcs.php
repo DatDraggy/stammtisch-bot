@@ -528,7 +528,8 @@ function updatePoll($pollId, $close = false) {
 
     $edited = editMessageText('', '', $text, $replyMarkup, $row['inline_message_id']);
     if ($edited === false) {
-      deletePollMessage($row['inline_message_id'], $pollId);
+      //Too many false positives, gotta think about something else
+      //deletePollMessage($row['inline_message_id'], $pollId);
     }
   }
 }
