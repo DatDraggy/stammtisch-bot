@@ -221,7 +221,7 @@ if (isset($text) && !isset($repliedToMessageId)) {
     }
   } else {
     sendChatAction($chatId, 'typing');
-    if (strlen($text) <= 50) {
+    if (strlen($text) <= 70) {
       $forceReply = array(
         'force_reply' => true
       );
@@ -231,7 +231,7 @@ Um dies nachträglich zu ändern, antworte einfach auf diese Nachricht.", '', js
       createPoll($senderUserId, $userName, $messageId, $feedbackMessageId, $text);
       die();
     } else {
-      sendMessage($chatId, 'Der Titel der Umfrage darf nicht länger als 50 Zeichen sein. 
+      sendMessage($chatId, 'Der Titel der Umfrage darf nicht länger als 70 Zeichen sein. 
 Der eigentliche Umfrage-Text folgt erst, nach dem du einen Titel gewählt hast.');
     }
   }
