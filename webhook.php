@@ -225,7 +225,7 @@ if (isset($text) && !isset($repliedToMessageId)) {
       $forceReply = array(
         'force_reply' => true
       );
-      $feedbackMessageId = sendMessage($chatId, "Ich erstelle die Umfrage <i>$text</i>.
+      $feedbackMessageId = sendMessage($chatId, "Ich erstelle die Umfrage \"$text\".
 Sende mir nun den Inhalt/die Beschreibung der Umfrage.
 Um dies nachträglich zu ändern, antworte einfach auf diese Nachricht.", '', json_encode($forceReply))['message_id'];
       createPoll($senderUserId, $userName, $messageId, $feedbackMessageId, $text);
