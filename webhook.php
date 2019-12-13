@@ -276,7 +276,7 @@ Der Bot denkt jedoch, dass ein Emoji nur ein Zeichen lang ist. Daher würde er a
   }
 
   $text = filterSymbols($text);
-  if(mb_strlen($text) > 4000){
+  if (mb_strlen($text) > 4000) {
     sendMessage($chatId, 'Leider darf der Text nicht länger als 4000 Zeichen sein.');
     die();
   }

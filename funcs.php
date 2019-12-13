@@ -324,9 +324,7 @@ function buildPollAttendees($pollId, $yes, $maybe, $no, $link = false) {
       $return .= '<a href="tg://user?id=' . $row['user_id'] . '">' . $row['nickname'] . '</a>
 ';
     }
-  }
-
-  /*
+  } /*
    * If character limit is reached, disable links
    */ else {
     foreach ($rows as $row) {
