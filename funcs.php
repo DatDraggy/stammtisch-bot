@@ -617,9 +617,12 @@ function mb_substr_replace($original, $replacement, $position, $length) {
   return $out;
 }
 
-function filterSymbols($input) {
-  $input = str_replace('<', '&lt;', $input);
-  $input = str_replace('>', '&gt;', $input);
-
+function filterSymbols($input, $clear = false) {
+  if ($clear) {
+    $input = str_replace(['<', '>'], '', $input);
+  } else {
+    $input = str_replace('<', '&lt;', $input);
+    $input = str_replace('>', '&gt;', $input);
+  }
   return $input;
 }

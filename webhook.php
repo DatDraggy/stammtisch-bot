@@ -223,7 +223,7 @@ if (isset($text) && !isset($repliedToMessageId)) {
     }
   } else {
     sendChatAction($chatId, 'typing');
-    $text = filterSymbols($text);
+    $text = filterSymbols($text, true);
     if (strlen($text) <= 70) {
       $forceReply = array(
         'force_reply' => true
