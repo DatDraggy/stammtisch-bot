@@ -31,21 +31,23 @@ if (isset($data['callback_query'])) {
   if (isset($data['callback_query']['from']['last_name'])) {
     $senderName .= ' ' . $data['callback_query']['from']['last_name'];
   }
-  $senderName = filterSymbols($senderName);
+
+  //$senderName = filterSymbols($senderName);
+  $senderName = urldecode(str_replace('%E2%80%8F', '', urlencode($senderName)));
 
   if (stripos($callbackData, '|') !== false) {
     list($method, $feedbackMessageId, $confirm, $time) = explode('|', $callbackData);
     if ($method === 'vote') {
       $timeouts = checkLastExecute($timeouts, 'vote', $chatType, $senderUserId);
-      if($timeouts === false){
+      if ($timeouts === false) {
         answerCallbackQuery($queryId);
         die();
       }
       file_put_contents($config['timeoutsave'], json_encode($timeouts));
       $inlineQueryMessageId = $data['callback_query']['inline_message_id'];
       list($pollId, $status, $title, $pollText) = getPoll('', '', $inlineQueryMessageId);
-      if($status === 1) {
-        if(setAttendanceStatus($pollId, $senderUserId, $senderName, $confirm)) {
+      if ($status === 1) {
+        if (setAttendanceStatus($pollId, $senderUserId, $senderName, $confirm)) {
           //Only update text if status changed
           updatePoll($pollId);
         }
@@ -84,14 +86,17 @@ if (isset($data['callback_query'])) {
         answerCallbackQuery($queryId, 'Sicher?');
         editMessageText($chatId, $messageId, 'Willst du die Umfrage wirklich schließen?', $replyMarkup);
       }
-    }else if($method === 'update'){
+    } else if ($method === 'update') {
       $pollId = getPoll($senderUserId, $feedbackMessageId)['id'];
-      if(updatePollText($pollId)){
-      updatePoll($pollId);}
+      if (updatePollText($pollId)) {
+        updatePoll($pollId);
+      }
       answerCallbackQuery($queryId);
       editMessageText($chatId, $messageId, 'Text wurde aktualisiert.');
     }
-  }else{answerCallbackQuery($queryId);}
+  } else {
+    answerCallbackQuery($queryId);
+  }
   die();
 } else if (isset($data['inline_query'])) {
   $inlineQueryId = $data['inline_query']['id'];
@@ -129,16 +134,17 @@ if (isset($data['callback_query'])) {
         ),
         array(
           array(
-            'text' => 'Abmeldung - ' . $attendeesNo,
+            /*'text' => 'Abmeldung - ' . $attendeesNo,*/
+            'text' => 'Abmeldung',
             'callback_data' => 'vote|0|3|0'
           )
         )
       )
     );
     $messageText = $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo, true);
-    if(mb_strlen($messageText) > 4000){
+    if (mb_strlen($messageText) > 4000) {
       $messageText = $pollText . buildPollAttendees($pollId, $attendeesYes, $attendeesMaybe, $attendeesNo);
-      if(mb_strlen($messageText) > 4000){
+      if (mb_strlen($messageText) > 4000) {
         $messageText = $pollText;
       }
     }
@@ -154,7 +160,6 @@ if (isset($data['callback_query'])) {
       'reply_markup' => $replyMarkup,
       'description' => $attendeesYes + $attendeesMaybe + $attendeesNo . ' Teilnehmer'
     );
-    //ToDo: Use Post not GET
   }
   answerInlineQuery($inlineQueryId, $results, $offset);
   die();
@@ -180,13 +185,11 @@ if (isset($data['message']['text'])) {
         $text = mb_substr_replace($text, '<i>', $offset, NULL);
         $text = mb_substr_replace($text, '</i>', $offset + 3 + $entity['length'], NULL);
         $additionalOffset += 7;
-      }
-      else if ($entity['type'] === 'bold') {
+      } else if ($entity['type'] === 'bold') {
         $text = mb_substr_replace($text, '<b>', $offset, NULL);
         $text = mb_substr_replace($text, '</b>', $offset + 3 + $entity['length'], NULL);
         $additionalOffset += 7;
-      }
-      else if ($entity['type'] === 'code') {
+      } else if ($entity['type'] === 'code') {
         $text = mb_substr_replace($text, '<code>', $offset, NULL);
         $text = mb_substr_replace($text, '</code>', $offset + 6 + $entity['length'], NULL);
         $additionalOffset += 13;
@@ -200,30 +203,38 @@ if (isset($data['message']['reply_to_message'])) {
   $repliedToMessageId = $replyToMessage['message_id'];
 }
 $messageId = $data['message']['message_id'];
+$userName = $data['message']['from']['first_name'];
+if (isset($data['message']['from']['last_name'])) {
+  $userName .= ' ' . $data['message']['from']['last_name'];
+}
+
+if (isset($data['message']['from']['username'])) {
+  $userName = $data['message']['from']['username'];
+}
 
 if (isset($text) && !isset($repliedToMessageId)) {
   if (substr($text, '0', '1') == '/') {
     $messageArr = explode(' ', $text);
     $command = explode('@', $messageArr[0])[0];
     if ($messageArr[0] == '/start' && isset($messageArr[1])) {
-      list($pollId, $status, $title, $pollText) = getPoll('','',$messageArr[1]);
+      list($pollId, $status, $title, $pollText) = getPoll('', '', $messageArr[1]);
       sendMessage($chatId, $pollText);
       die();
     }
   } else {
     sendChatAction($chatId, 'typing');
     $text = filterSymbols($text);
-    if (strlen($text) <= 50) {
+    if (strlen($text) <= 70) {
       $forceReply = array(
         'force_reply' => true
       );
-      $feedbackMessageId = sendMessage($chatId, "Ich erstelle die Umfrage <i>$text</i>.
+      $feedbackMessageId = sendMessage($chatId, "Ich erstelle die Umfrage \"$text\".
 Sende mir nun den Inhalt/die Beschreibung der Umfrage.
 Um dies nachträglich zu ändern, antworte einfach auf diese Nachricht.", '', json_encode($forceReply))['message_id'];
-      createPoll($senderUserId, $messageId, $feedbackMessageId, $text);
+      createPoll($senderUserId, $userName, $messageId, $feedbackMessageId, $text);
       die();
     } else {
-      sendMessage($chatId, 'Der Titel der Umfrage darf nicht länger als 50 Zeichen sein. 
+      sendMessage($chatId, 'Der Titel der Umfrage darf nicht länger als 70 Zeichen sein. 
 Der eigentliche Umfrage-Text folgt erst, nach dem du einen Titel gewählt hast.');
     }
   }
@@ -232,7 +243,8 @@ Der eigentliche Umfrage-Text folgt erst, nach dem du einen Titel gewählt hast.'
 
   switch ($command) {
     case '/start':
-      if ($messageArr) sendMessage($chatId, '<b>Hallo!</b>
+      if ($messageArr) {
+        sendMessage($chatId, '<b>Hallo!</b>
 
 Ich bin der Gästebuch Bot.
 Durch mich kannst du ein Gästebuch für Meetups oder Stammtische erstellen!
@@ -244,6 +256,7 @@ Falls du etwas nicht verstehst, kannst du hier eine Demonstration des Bots sehen
 
 <b>Wichtig</b>: Wenn du Formatierungen (Fett, Kursiv, etc) mit Emojis nutzen möchtest, tue dies bitte manuell, so wie <a href="https://img.kieran.de/VnsEH79.png">hier</a>!
 Erklärung: /emojis');
+      }
       break;
     case '/test':
       mail($config['mail'], 'Dump', $dump);
@@ -267,7 +280,7 @@ Der Bot denkt jedoch, dass ein Emoji nur ein Zeichen lang ist. Daher würde er a
     sendMessage($chatId, 'Leider darf der Text nicht länger als 4000 Zeichen sein.');
     die();
   }
-  if($pollText === NULL) {
+  if ($pollText === NULL) {
     setPollContent($senderUserId, $repliedToMessageId, $text);
     $replyMarkup = array(
       'inline_keyboard' => array(
@@ -281,8 +294,7 @@ Der Bot denkt jedoch, dass ein Emoji nur ein Zeichen lang ist. Daher würde er a
     );
     sendMessage($chatId, "Fertig. Du kannst die Umfrage nun, in dem du '@gaestebuch_bot $title' in deine Textzeile schreibst, in Gruppen teilen.
 Falls du die Umfrage beenden möchtest, drücke einfach den \"Schließen\" Knopf.", '', json_encode($replyMarkup));
-  }
-  else if ($status === 1) {
+  } else if ($status === 1) {
     setPollNewContent($senderUserId, $repliedToMessageId, $text);
     $replyMarkup = array(
       'inline_keyboard' => array(
@@ -291,8 +303,10 @@ Falls du die Umfrage beenden möchtest, drücke einfach den \"Schließen\" Knopf
             'text' => 'Ja',
             'callback_data' => "update|$repliedToMessageId|0|" . time()
           ),
-          array('text' => 'Nein',
-            'callback_data' => 'no')
+          array(
+            'text' => 'Nein',
+            'callback_data' => 'no'
+          )
         )
       )
     );
