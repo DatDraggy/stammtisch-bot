@@ -23,20 +23,19 @@ function notifyOnException($subject, $config, $sql = '', $e = '') {
 }
 
 function sendMessage($chatId, $text, $replyTo = '', $replyMarkup = '') {
-  if (mb_strlen($text) > 4096){
+  if (mb_strlen($text) > 4096) {
     sendMessage($chatId, substr($text, 0, 4096), $replyTo, $replyMarkup);
     return sendMessage($chatId, substr($text, 4096), $replyTo, $replyMarkup);
-  }
-  else {
-  $data = array(
-    'disable_web_page_preview' => true,
-    'parse_mode' => 'html',
-    'chat_id' => $chatId,
-    'text' => $text,
-    'reply_to_message_id' => $replyTo,
-    'reply_markup' => $replyMarkup
-  );
-  return makeApiRequest('sendMessage', $data);
+  } else {
+    $data = array(
+      'disable_web_page_preview' => true,
+      'parse_mode' => 'html',
+      'chat_id' => $chatId,
+      'text' => $text,
+      'reply_to_message_id' => $replyTo,
+      'reply_markup' => $replyMarkup
+    );
+    return makeApiRequest('sendMessage', $data);
   }
 }
 
@@ -78,7 +77,8 @@ function sendChatAction($chatId, $action) {
   );
   if (in_array($action, $actionList)) {
     $data = array(
-      'chat_id' => $chatId,'action'=>$action
+      'chat_id' => $chatId,
+      'action' => $action
     );
     return makeApiRequest('sendChatAction', $data);
   }
@@ -361,7 +361,7 @@ function setAttendanceStatus($pollId, $userId, $nickname, $status) {
   }
   if ($stmt->rowCount() > 0) {
     //Update
-    if($row['status'] != $status) {
+    if ($row['status'] != $status) {
       try {
         $sql = "UPDATE attendees SET status = $status, nickname = $nickname, time = UNIX_TIMESTAMP() WHERE poll_id = $pollId AND user_id = $userId";
         $stmt = $dbConnection->prepare('UPDATE attendees SET status = :status, nickname = :nickname, time = UNIX_TIMESTAMP() WHERE poll_id = :pollId AND user_id = :userId');
@@ -370,8 +370,7 @@ function setAttendanceStatus($pollId, $userId, $nickname, $status) {
         $stmt->bindParam(':pollId', $pollId);
         $stmt->bindParam(':userId', $userId);
         $stmt->execute();
-      }
-      catch (PDOException $e) {
+      } catch (PDOException $e) {
         notifyOnException('Database Update', $config, $sql, $e);
       }
       return true;
@@ -459,15 +458,15 @@ function updatePoll($pollId, $close = false) {
   }
 }
 
-function updatePollText($pollId){
+function updatePollText($pollId) {
   global $dbConnection, $config;
 
-  try{
+  try {
     $sql = "UPDATE polls SET text = text_new, text_new = NULL WHERE id = $pollId AND text_new IS NOT NULL";
     $stmt = $dbConnection->prepare('UPDATE polls SET text = text_new, text_new = NULL WHERE id = :pollId AND text_new IS NOT NULL');
     $stmt->bindParam(':pollId', $pollId);
     $stmt->execute();
-  }catch (PDOException $e) {
+  } catch (PDOException $e) {
     notifyOnException('Database Update', $config, $sql, $e);
     return false;
   }
@@ -510,12 +509,18 @@ function checkLastExecute($timeouts, $command, $type, $id) {
   return $timeouts;
 }
 
-function mb_substr_replace($original, $replacement, $position, $length)
-{
+function mb_substr_replace($original, $replacement, $position, $length) {
   $startString = mb_substr($original, 0, $position, "UTF-8");
   $endString = mb_substr($original, $position + $length, mb_strlen($original), "UTF-8");
 
   $out = $startString . $replacement . $endString;
 
   return $out;
+}
+
+function filterSymbols($input) {
+  $input = str_replace('<', '&lt;', $input);
+  $input = str_replace('>', '&gt;', $input);
+
+  return $input;
 }

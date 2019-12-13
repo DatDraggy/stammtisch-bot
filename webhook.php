@@ -31,6 +31,7 @@ if (isset($data['callback_query'])) {
   if (isset($data['callback_query']['from']['last_name'])) {
     $senderName .= ' ' . $data['callback_query']['from']['last_name'];
   }
+  $senderName = filterSymbols($senderName);
 
   if (stripos($callbackData, '|') !== false) {
     list($method, $feedbackMessageId, $confirm, $time) = explode('|', $callbackData);
@@ -211,6 +212,7 @@ if (isset($text) && !isset($repliedToMessageId)) {
     }
   } else {
     sendChatAction($chatId, 'typing');
+    $text = filterSymbols($text);
     if (strlen($text) <= 50) {
       $forceReply = array(
         'force_reply' => true
@@ -259,6 +261,8 @@ Der Bot denkt jedoch, dass ein Emoji nur ein Zeichen lang ist. Daher würde er a
     sendMessage($chatId, 'Error oder Umfrage nicht gefunden. Bitte erstelle eine neue Umfrage oder kontaktiere @DatDraggy.');
     die();
   }
+
+  $text = filterSymbols($text);
   if(mb_strlen($text) > 4000){
     sendMessage($chatId, 'Leider darf der Text nicht länger als 4000 Zeichen sein.');
     die();
