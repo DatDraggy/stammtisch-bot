@@ -46,7 +46,7 @@ if (isset($data['callback_query'])) {
       file_put_contents($config['timeoutsave'], json_encode($timeouts));
       $inlineQueryMessageId = $data['callback_query']['inline_message_id'];
       list($pollId, $status, $title, $pollText, $max) = getPoll('', '', $inlineQueryMessageId);
-      if ($status === 1 && ($max != 0 && $max > getPollAttendees($pollId)['yes'])) {
+      if ($status === 1 && ($max === 0 || ($max > getPollAttendees($pollId)['yes'] || $confirm != 1))) {
         if (setAttendanceStatus($pollId, $senderUserId, $senderName, $confirm)) {
           //Only update text if status changed
           updatePoll($pollId);
