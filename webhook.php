@@ -280,6 +280,7 @@ Der Bot denkt jedoch, dass ein Emoji nur ein Zeichen lang ist. Daher würde er a
       if (is_int($max)) {
           updateMax($pollId, $max);
       }
+      sendMessage($chatId, 'Anzahl Aktualisiert.');
       die();
   }
 
