@@ -51,6 +51,8 @@ if (isset($data['callback_query'])) {
           //Only update text if status changed
           updatePoll($pollId);
         }
+      } else {
+          answerCallbackQuery($queryId, 'Maximale Anzahl erreicht oder geschlossen.');
       }
       answerCallbackQuery($queryId);
     } else if ($method === 'close') {
