@@ -45,8 +45,8 @@ if (isset($data['callback_query'])) {
       }
       file_put_contents($config['timeoutsave'], json_encode($timeouts));
       $inlineQueryMessageId = $data['callback_query']['inline_message_id'];
-      list($pollId, $status, $title, $pollText) = getPoll('', '', $inlineQueryMessageId);
-      if ($status === 1) {
+      list($pollId, $status, $title, $pollText, $max) = getPoll('', '', $inlineQueryMessageId);
+      if ($status === 1 && ($max != 0 && $max > getPollAttendees($pollId)['yes'])) {
         if (setAttendanceStatus($pollId, $senderUserId, $senderName, $confirm)) {
           //Only update text if status changed
           updatePoll($pollId);
@@ -217,7 +217,7 @@ if (isset($text) && !isset($repliedToMessageId)) {
     $messageArr = explode(' ', $text);
     $command = explode('@', $messageArr[0])[0];
     if ($messageArr[0] == '/start' && isset($messageArr[1])) {
-      list($pollId, $status, $title, $pollText) = getPoll('', '', $messageArr[1]);
+      list($pollId, $status, $title, $pollText, $max) = getPoll('', '', $messageArr[1]);
       sendMessage($chatId, $pollText);
       die();
     }
@@ -269,10 +269,18 @@ Der Bot denkt jedoch, dass ein Emoji nur ein Zeichen lang ist. Daher würde er a
   }
 } else if (isset($text) && isset($repliedToMessageId)) {
   sendChatAction($chatId, 'typing');
-  list($pollId, $status, $title, $pollText) = getPoll($senderUserId, $repliedToMessageId);
+  list($pollId, $status, $title, $pollText, $max) = getPoll($senderUserId, $repliedToMessageId);
   if ($pollId === false) {
     sendMessage($chatId, 'Error oder Umfrage nicht gefunden. Bitte erstelle eine neue Umfrage oder kontaktiere @DatDraggy.');
     die();
+  }
+
+  if (substr($text, 0, 4) === '/max') {
+      $max = substr($text, 5);
+      if (is_int($max)) {
+          updateMax($pollId, $max);
+      }
+      die();
   }
 
   if (mb_strlen($text) > 4000) {

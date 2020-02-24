@@ -106,8 +106,8 @@ function getPoll($userId, $feedbackMessageId, $inlineQueryMessageId = '') {
 
   if (empty($inlineQueryMessageId)) {
     try {
-      $sql = "SELECT id, status, title, text FROM polls WHERE user_id = $userId AND feedback_message_id = $feedbackMessageId";
-      $stmt = $dbConnection->prepare('SELECT id, status, title, text FROM polls WHERE user_id = :userId AND feedback_message_id = :feedbackMessageId');
+      $sql = "SELECT id, status, title, text, max FROM polls WHERE user_id = $userId AND feedback_message_id = $feedbackMessageId";
+      $stmt = $dbConnection->prepare('SELECT id, status, title, text, max FROM polls WHERE user_id = :userId AND feedback_message_id = :feedbackMessageId');
       $stmt->bindParam(':userId', $userId);
       $stmt->bindParam(':feedbackMessageId', $feedbackMessageId);
       $stmt->execute();
@@ -121,12 +121,13 @@ function getPoll($userId, $feedbackMessageId, $inlineQueryMessageId = '') {
       false,
       false,
       false,
+      false,
       false
     ];
   } else {
     try {
-      $sql = "SELECT id, status, title, text FROM polls INNER JOIN messages m on polls.id = m.poll_id WHERE m.inline_message_id = $inlineQueryMessageId";
-      $stmt = $dbConnection->prepare('SELECT id, status, title, text FROM polls INNER JOIN messages m on polls.id = m.poll_id WHERE m.inline_message_id = :inlineQueryMessageId');
+      $sql = "SELECT id, status, title, text, max FROM polls INNER JOIN messages m on polls.id = m.poll_id WHERE m.inline_message_id = $inlineQueryMessageId";
+      $stmt = $dbConnection->prepare('SELECT id, status, title, text, max FROM polls INNER JOIN messages m on polls.id = m.poll_id WHERE m.inline_message_id = :inlineQueryMessageId');
       $stmt->bindParam(':inlineQueryMessageId', $inlineQueryMessageId);
       $stmt->execute();
       if ($stmt->rowCount() > 0) {
@@ -136,6 +137,7 @@ function getPoll($userId, $feedbackMessageId, $inlineQueryMessageId = '') {
       notifyOnException('Database Select', $config, $sql, $e);
     }
     return [
+      false,
       false,
       false,
       false,
@@ -213,6 +215,20 @@ function getPollAttendees($pollId) {
     notifyOnException('Database Select', $config, $sql, $e);
   }
   return false;
+}
+
+function updateMax($pollId, $max) {
+    global $dbConnection, $config;
+
+    try {
+        $sql = 'UPDATE polls SET max = :max WHERE poll_id = :pollId';
+        $stmt = $dbConnection->prepare($sql);
+        $stmt->bindParam(':max', $max);
+        $stmt->bindParam(':pollId', $pollId);
+        $stmt->execute();
+    } catch (PDOException $e) {
+        notifyOnException('Database Select', $config, $sql, $e);
+    }
 }
 
 function buildPollAttendees($pollId, $yes, $maybe, $no, $link = false) {
