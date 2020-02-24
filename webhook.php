@@ -40,7 +40,7 @@ if (isset($data['callback_query'])) {
     if ($method === 'vote') {
       $timeouts = checkLastExecute($timeouts, 'vote', $chatType, $senderUserId);
       if ($timeouts === false) {
-        answerCallbackQuery($queryId);
+        answerCallbackQuery($queryId, 'Nicht so schnell.');
         die();
       }
       file_put_contents($config['timeoutsave'], json_encode($timeouts));
@@ -276,8 +276,8 @@ Der Bot denkt jedoch, dass ein Emoji nur ein Zeichen lang ist. Daher würde er a
   }
 
   if (substr($text, 0, 4) === '/max') {
-      $max = substr($text, 5);
-      if (is_int($max)) {
+      $max = (int) substr($text, 5);
+      if ($max >= 0) {
           updateMax($pollId, $max);
       }
       sendMessage($chatId, 'Anzahl Aktualisiert.');
