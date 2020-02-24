@@ -221,7 +221,7 @@ function updateMax($pollId, $max) {
     global $dbConnection, $config;
 
     try {
-        $sql = 'UPDATE polls SET max = :max WHERE poll_id = :pollId';
+        $sql = 'UPDATE polls SET max = :max WHERE id = :pollId';
         $stmt = $dbConnection->prepare($sql);
         $stmt->bindParam(':max', $max);
         $stmt->bindParam(':pollId', $pollId);
