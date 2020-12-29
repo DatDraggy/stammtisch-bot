@@ -256,7 +256,7 @@ Vergiss aber nicht, dass Nachrichten nicht länger als <i>4000 Zeichen</i> lang 
 
 Falls du etwas nicht verstehst, kannst du hier eine Demonstration des Bots sehen: https://img.kieran.de/mO2zvp1.mp4
 
-<b>Wichtig</b>: Wenn du Formatierungen (Fett, Kursiv, etc) mit Emojis nutzen möchtest, tue dies bitte manuell, so wie <a href="https://img.kieran.de/VnsEH79.png">hier</a>!
+<b>Wichtig</b>: Wenn du Formatierungen (Fett, Kursiv, etc) mit Emojis nutzen möchtest, tu dies bitte manuell, so wie <a href="https://img.kieran.de/VnsEH79.png">hier</a>!
 Erklärung: /emojis');
       }
       break;
