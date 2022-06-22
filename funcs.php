@@ -337,7 +337,7 @@ function buildPollAttendees($pollId, $yes, $maybe, $no, $link = false) {
         }
         $lastStatus = $row['status'];
       }
-      $return .= '<a href="tg://user?id=' . $row['user_id'] . '">' . $row['nickname'] . '</a>
+      $return .= '<a href="tg://user?id=' . $row['user_id'] . '">' . htmlspecialchars($row['nickname']) . '</a>
 ';
     }
   } /*
@@ -357,7 +357,7 @@ function buildPollAttendees($pollId, $yes, $maybe, $no, $link = false) {
         }
         $lastStatus = $row['status'];
       }
-      $return .= $row['nickname'] . '
+      $return .= htmlspecialchars($row['nickname']) . '
 ';
     }
   }
